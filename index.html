@@ -9,12 +9,13 @@
     :root {
       --bg: #0b1020;
       --panel: rgba(21, 26, 48, 0.9);
-      --panel-2: rgba(31, 38, 70, 0.9);
+      --panel-2: rgba(31, 38, 70, 0.92);
       --line: rgba(255,255,255,0.1);
       --text: #f8fafc;
       --muted: #cbd5e1;
       --accent: #8b5cf6;
       --accent-2: #c084fc;
+      --gold: #f59e0b;
       --ok: #10b981;
       --warn: #f59e0b;
       --bad: #f43f5e;
@@ -61,20 +62,21 @@
     p { color: var(--muted); line-height: 1.55; margin: 0; }
     .small { font-size: 13px; color: var(--muted); }
 
-    .top-actions, .chips, .tag-row, .quick-filters, .action-row {
-      display: flex; gap: 8px; flex-wrap: wrap;
-    }
-
-    button, select, input { font: inherit; }
+    .top-actions, .chips, .tag-row, .quick-filters, .action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button, input { font: inherit; }
     button { border: 0; cursor: pointer; color: inherit; }
 
     .btn {
       min-height: 44px; padding: 11px 14px; border-radius: 14px;
       background: rgba(255,255,255,.06); border: 1px solid var(--line);
       color: var(--text);
+      transition: transform .15s ease, background .2s ease, border-color .2s ease;
     }
+    .btn:active { transform: scale(.98); }
     .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
     .btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+    .btn.gold { background: linear-gradient(135deg, #f59e0b, #fbbf24); border-color: transparent; color: #111827; font-weight: 700; }
+    .btn.subtle { background: rgba(255,255,255,.04); }
 
     .search {
       width: 100%; min-height: 46px; margin-top: 12px; padding: 12px 14px;
@@ -82,24 +84,24 @@
       background: rgba(255,255,255,.06); color: var(--text); outline: none;
     }
 
-    .weapon-scroller, .aspect-scroller, .god-scroller, .offer-scroller, .door-scroller {
+    .weapon-scroller, .aspect-scroller, .god-scroller {
       display: grid; gap: 10px; grid-auto-flow: column; grid-auto-columns: 84%;
       overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x proximity;
     }
 
-    .weapon-card, .aspect-card, .god-card, .mini, .line-card, .check-item, .offer-card, .door-card {
+    .weapon-card, .aspect-card, .god-card, .mini, .line-card, .check-item, .choice-card {
       border: 1px solid var(--line); background: var(--panel-2); border-radius: 18px;
     }
 
     .weapon-card {
       padding: 14px; display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center;
       scroll-snap-align: start;
+      transition: transform .15s ease, outline-color .2s ease;
     }
-    .weapon-card.active, .aspect-card.active, .build-btn.active, .god-card.active, .offer-card.recommended, .door-card.recommended {
-      outline: 2px solid rgba(192,132,252,.7);
-    }
+    .weapon-card:active { transform: scale(.985); }
+    .weapon-card.active, .aspect-card.active, .build-btn.active, .god-card.active, .choice-card.recommended { outline: 2px solid rgba(192,132,252,.75); }
 
-    .weapon-icon, .god-icon, .door-icon {
+    .weapon-icon, .god-icon, .choice-icon {
       width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center;
       background: rgba(255,255,255,.08); font-size: 28px;
     }
@@ -116,9 +118,18 @@
     .main-art { min-height: 150px; font-size: 72px; }
     .aspect-art { min-height: 82px; font-size: 42px; }
 
-    .stat-grid, .build-grid, .duo-grid, .note-grid, .check-grid {
-      display: grid; gap: 10px;
+    .summary-strip {
+      position: sticky; top: 8px; z-index: 8;
+      margin-bottom: 14px; padding: 12px 14px;
+      border-radius: 18px; border: 1px solid rgba(245,158,11,.22);
+      background: linear-gradient(135deg, rgba(245,158,11,.16), rgba(139,92,246,.18));
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
     }
+    .summary-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .summary-main { margin-top: 8px; font-size: 15px; font-weight: 700; }
+
+    .stat-grid, .build-grid, .duo-grid, .note-grid, .check-grid { display: grid; gap: 10px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: 14px; }
     .build-grid { grid-template-columns: repeat(2, 1fr); }
     .duo-grid, .note-grid, .check-grid { grid-template-columns: 1fr; }
@@ -127,15 +138,34 @@
     .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
     .bar > span { height: 100%; display: block; background: linear-gradient(90deg, #818cf8, #c084fc); }
 
-    .aspect-card, .build-btn, .mini, .line-card, .check-item, .god-card, .offer-card, .door-card { padding: 12px; }
+    .aspect-card, .build-btn, .mini, .line-card, .check-item, .god-card, .choice-card { padding: 12px; }
+    .build-btn { transition: transform .15s ease; }
+    .build-btn:active { transform: scale(.98); }
 
     .aspect-preview {
       height: 68px; border-radius: 16px; margin-bottom: 10px;
       border: 1px solid var(--line); display: grid; place-items: center; font-size: 30px;
     }
 
-    .god-card, .offer-card, .door-card { text-align: left; width: 100%; }
-    .god-top, .door-top { display: flex; gap: 12px; align-items: center; }
+    .god-card, .choice-card { text-align: left; width: 100%; transition: transform .15s ease; }
+    .god-card:active, .choice-card:active { transform: scale(.985); }
+    .god-top, .choice-top { display: flex; gap: 12px; align-items: center; }
+
+    .choice-grid { display: grid; gap: 12px; }
+
+    .recommendation-hero {
+      border: 1px solid rgba(245,158,11,.22);
+      background: linear-gradient(135deg, rgba(245,158,11,.18), rgba(139,92,246,.18));
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      animation: pulseGlow 2.4s infinite ease-in-out;
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 rgba(245,158,11,0); }
+      50% { box-shadow: 0 0 24px rgba(245,158,11,.18); }
+      100% { box-shadow: 0 0 0 rgba(245,158,11,0); }
+    }
 
     .duo {
       display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center;
@@ -167,6 +197,22 @@
     .check-item { display: flex; gap: 10px; align-items: flex-start; }
     .check-item input { margin-top: 3px; transform: scale(1.15); }
 
+    details {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      padding: 0;
+      overflow: hidden;
+    }
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      font-weight: 700;
+    }
+    summary::-webkit-details-marker { display: none; }
+    .details-body { padding: 0 16px 16px; }
+
     .sheet {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
       border-top: 1px solid var(--line);
@@ -184,10 +230,12 @@
 </head>
 <body>
   <div class="app">
+    <div class="summary-strip" id="summaryStrip"></div>
+
     <div class="hero">
-      <div class="pill">📱 Hades II Mobile Companion v3</div>
-      <h1>Decisiones simples, con nombres en español</h1>
-      <p>Ahora la app te recomienda tanto qué dios elegir como qué tipo de recompensa conviene tomar en cada estancia, usando términos en español más fáciles de entender.</p>
+      <div class="pill">📱 Hades II Mobile Companion v4</div>
+      <h1>Run mucho más simple y visual</h1>
+      <p>Ahora la pantalla de run está pensada como una secuencia corta: qué viste, qué conviene elegir, confirmar elección y avanzar a la siguiente estancia.</p>
       <div class="top-actions" style="margin-top:12px;">
         <button class="btn primary" id="quickStartBtn">Build inicial</button>
         <button class="btn" id="resetBtn">Reiniciar</button>
@@ -196,7 +244,7 @@
 
     <div class="card">
       <h2>Buscar arma</h2>
-      <input class="search" id="searchInput" type="text" placeholder="Ej: hacha, cráneo, rápida, burst..." />
+      <input class="search" id="searchInput" type="text" placeholder="Ej: hacha, cráneo, rápida..." />
       <div class="weapon-scroller" id="weaponList" style="margin-top:12px;"></div>
     </div>
 
@@ -230,10 +278,10 @@
 
     const rewards = {
       dios: { key: 'dios', name: 'Dios', icon: '✨', desc: 'Más opciones de bendiciones para fortalecer tu build.' },
-      martillo: { key: 'martillo', name: 'Martillo de Dédalo', icon: '🔨', desc: 'Mejora muy fuerte del arma. Suele ser de las mejores puertas.' },
-      granada: { key: 'granada', name: 'Granada', icon: '🍎', desc: 'Mejora una bendición que ya tienes. En inglés suele llamarse Pom.' },
+      martillo: { key: 'martillo', name: 'Martillo de Dédalo', icon: '🔨', desc: 'Mejora fuerte del arma. Suele ser una de las mejores puertas.' },
+      granada: { key: 'granada', name: 'Granada', icon: '🍎', desc: 'Mejora una bendición que ya tienes.' },
       corazon: { key: 'corazon', name: 'Corazón', icon: '❤️', desc: 'Más vida máxima.' },
-      mana: { key: 'mana', name: 'Magia', icon: '🔵', desc: 'Más capacidad o apoyo para usar Omega y Hex.' },
+      mana: { key: 'mana', name: 'Magia', icon: '🔵', desc: 'Más apoyo para usar omega y hexes.' },
       monedas: { key: 'monedas', name: 'Monedas', icon: '🪙', desc: 'Sirven para comprar mejoras más adelante.' },
       caos: { key: 'caos', name: 'Caos', icon: '🌀', desc: 'Riesgo a corto plazo con recompensa fuerte a futuro.' },
       selene: { key: 'selene', name: 'Selene', icon: '🌙', desc: 'Opciones ligadas a hexes y magia.' },
@@ -241,13 +289,6 @@
 
     const rewardKeys = Object.keys(rewards);
     const allGodKeys = ["zeus","poseidon","hestia","hephaestus","aphrodite","demeter","apollo","hera","ares","hermes","selene"];
-
-    const elements = {
-      fire: { name: "Fuego", hint: "Agresión, daño constante, ofensiva activa." },
-      water: { name: "Agua", hint: "Control, seguridad, presión estable." },
-      earth: { name: "Tierra", hint: "Robustez, daño pesado, dominio del espacio." },
-      air: { name: "Aire", hint: "Ritmo, movilidad, fluidez." },
-    };
 
     const keepsakes = {
       aggressive: ["Recuerdo del dios principal temprano", "Algo que aumente daño o presión", "Hermes si te falta fluidez"],
@@ -259,7 +300,14 @@
     const hammerAdviceByStyle = {
       rapid: ["Prioriza mejoras que aumenten frecuencia o cobertura", "Evita martillos que vuelvan torpe tu patrón si aún aprendes el arma", "Si una mejora vuelve el kit más fácil de aplicar, suele valer mucho"],
       heavy: ["Prioriza mejoras que aumenten impacto o seguridad en las ventanas", "Valen mucho las mejoras que facilitan conectar golpes grandes", "Evita opciones que bajen demasiado la consistencia"],
-      cast: ["Busca martillos que mejoren control del espacio o integración con Cast", "Valen mucho los que ordenan tu patrón", "No sobrecargues la build con demasiadas capas si recién partes"],
+      cast: ["Busca martillos que mejoren control del espacio o integración con cast", "Valen mucho los que ordenan tu patrón", "No sobrecargues la build con demasiadas capas si recién partes"],
+    };
+
+    const elements = {
+      fire: { name: "Fuego", hint: "Agresión, daño constante, ofensiva activa." },
+      water: { name: "Agua", hint: "Control, seguridad, presión estable." },
+      earth: { name: "Tierra", hint: "Robustez, daño pesado, dominio del espacio." },
+      air: { name: "Aire", hint: "Ritmo, movilidad, fluidez." },
     };
 
     const weapons = [
@@ -308,6 +356,7 @@
       screen: 'overview',
     };
 
+    const summaryStrip = document.getElementById('summaryStrip');
     const searchInput = document.getElementById('searchInput');
     const weaponList = document.getElementById('weaponList');
     const screens = {
@@ -369,11 +418,9 @@
       if (doorKey === 'monedas') score += 35;
       if (doorKey === 'caos') score += godsTaken >= 1 ? 58 : 20;
       if (doorKey === 'selene') score += (state.buildType === 'omega' || state.buildType === 'cast') ? 72 : 28;
-
       if (weapon.coreStyle === 'heavy' && doorKey === 'martillo') score += 12;
       if (weapon.coreStyle === 'cast' && (doorKey === 'mana' || doorKey === 'selene')) score += 12;
       if (weapon.coreStyle === 'rapid' && doorKey === 'granada') score += 8;
-
       return score;
     }
 
@@ -404,7 +451,7 @@
         firstGod: buildInfo.gods[0],
         secondGod: buildInfo.gods[1],
         duo: buildInfo.duo,
-        text: `Empieza intentando asegurar ${gods[buildInfo.gods[0]].name}. Luego busca ${gods[buildInfo.gods[1]].name} para completar la build y orientar tu run hacia la dupla ${gods[buildInfo.duo[0]].name} + ${gods[buildInfo.duo[1]].name}.`
+        text: `Empieza intentando asegurar ${gods[buildInfo.gods[0]].name}. Luego busca ${gods[buildInfo.gods[1]].name}.`
       };
 
       const recommendationByGoal = {
@@ -418,24 +465,22 @@
       if (state.pickedGods.length) {
         if (canPivot && bestPivot) {
           const label = bestPivot.key === 'attack' ? 'Ataque' : bestPivot.key === 'special' ? 'Especial' : bestPivot.key === 'cast' ? 'Cast' : 'Omega';
-          inRunAdvice = `Tu run sugiere un cambio de plan: has tomado más piezas compatibles con ${label} que con tu plan actual.`;
+          inRunAdvice = `Tu run sugiere un cambio de plan hacia ${label}.`;
         } else if (state.pickedGods.includes(suggestedPath.firstGod) && !state.pickedGods.includes(suggestedPath.secondGod)) {
           inRunAdvice = `Ya tienes ${gods[suggestedPath.firstGod].name}. Ahora prioriza ${gods[suggestedPath.secondGod].name}.`;
         } else if (state.pickedGods.includes(suggestedPath.firstGod) && state.pickedGods.includes(suggestedPath.secondGod)) {
-          inRunAdvice = `Núcleo armado. Prioriza cerrar la dupla ${gods[suggestedPath.duo[0]].name} + ${gods[suggestedPath.duo[1]].name}.`;
+          inRunAdvice = `Núcleo armado. Prioriza cerrar la dupla.`;
         } else {
-          inRunAdvice = `Ya tomaste ${state.pickedGods.map(g => gods[g].name).join(', ')}. Revisa si eso apoya tu plan actual.`;
+          inRunAdvice = `Ya tomaste ${state.pickedGods.map(g => gods[g].name).join(', ')}.`;
         }
       }
 
       let pivotMessage = 'Todavía no hay suficiente información para sugerir un cambio de plan.';
       if (state.pickedGods.length) {
-        if (!canPivot || !bestPivot) {
-          pivotMessage = 'Tu plan actual sigue siendo el mejor camino.';
-        } else {
+        if (!canPivot || !bestPivot) pivotMessage = 'Tu plan actual sigue siendo el mejor camino.';
+        else {
           const label = bestPivot.key === 'attack' ? 'Ataque' : bestPivot.key === 'special' ? 'Especial' : bestPivot.key === 'cast' ? 'Cast' : 'Omega';
-          const pivotGods = bestPivot.info.gods.slice(0,3).map(g => gods[g].name).join(', ');
-          pivotMessage = `Conviene cambiar hacia ${label}. Prioriza ${pivotGods}.`;
+          pivotMessage = `Conviene cambiar hacia ${label}.`;
         }
       }
 
@@ -496,15 +541,14 @@
       if (recommendedOffer) togglePickedGod(recommendedOffer);
     }
 
-    function clearOffers(){
+    function nextRoom(){
       state.seenOffers = [];
-      render();
-    }
-
-    function clearDoors(){
       state.seenDoors = [];
       render();
     }
+
+    function clearOffers(){ state.seenOffers = []; render(); }
+    function clearDoors(){ state.seenDoors = []; render(); }
 
     function selectWeapon(id){
       state.selectedWeaponId = id;
@@ -526,6 +570,7 @@
     window.toggleOffer = toggleOffer;
     window.toggleDoor = toggleDoor;
     window.addRecommendedOffer = addRecommendedOffer;
+    window.nextRoom = nextRoom;
     window.clearOffers = clearOffers;
     window.clearDoors = clearDoors;
     window.selectWeapon = selectWeapon;
@@ -552,6 +597,19 @@
       document.querySelectorAll('.sheet button').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === state.screen));
     }
 
+    function renderSummaryStrip(data){
+      summaryStrip.innerHTML = `
+        <div class="summary-top">
+          <div class="pill">${data.weapon.name} · ${data.buildTypeLabel}</div>
+          <div class="small">${data.aspect.name}</div>
+        </div>
+        <div class="summary-main">${data.mainMessage}</div>
+        <div class="chips" style="margin-top:8px;">
+          ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Sin dioses tomados</span>'}
+        </div>
+      `;
+    }
+
     function stat(label, value){
       return `<div class="stat"><label><span>${label}</span><span>${value}/100</span></label><div class="bar"><span style="width:${value}%"></span></div></div>`;
     }
@@ -562,6 +620,8 @@
       renderScreens();
       const { weapon, aspect, buildInfo, bestPivot, score, suggestedPath, visibleGods, inRunAdvice, pivotMessage, checkGuidance, nextRecommendedGod, recommendedOffer, offeredRanked, recommendedDoor, doorsRanked } = compute();
       const q = qualityInfo(score);
+      const buildTypeLabel = state.buildType === 'attack' ? 'Ataque' : state.buildType === 'special' ? 'Especial' : state.buildType === 'cast' ? 'Cast' : 'Omega';
+      renderSummaryStrip({ weapon, aspect, buildTypeLabel, mainMessage: nextRecommendedGod ? `Próxima prioridad: ${gods[nextRecommendedGod.key].name}` : 'Sigue cerrando tu build actual' });
 
       screens.overview.innerHTML = `
         <div class="card">
@@ -588,14 +648,6 @@
             <div class="bar" style="margin-top:10px;"><span style="width:${score}%"></span></div>
           </div>
           <div class="callout info" style="margin-top:12px;">${inRunAdvice}</div>
-        </div>
-
-        <div class="card">
-          <h2>Siguiente prioridad</h2>
-          <div class="callout ok">${nextRecommendedGod ? `Si el próximo dios que ves es <strong>${gods[nextRecommendedGod.key].name}</strong>, normalmente conviene tomarlo.` : 'Ya tienes gran parte del núcleo. Ahora prioriza completar la dupla o corregir control/supervivencia.'}</div>
-          <div class="chips" style="margin-top:12px;">
-            ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Sin dioses tomados</span>'}
-          </div>
         </div>
       `;
 
@@ -637,7 +689,7 @@
                   <div class="god-icon" style="background:${gods[g].color}">${gods[g].icon}</div>
                   <div><strong>${gods[g].name}</strong><div class="small">${gods[g].type}</div></div>
                 </div>
-                <div class="small" style="margin-top:8px;">Toque para marcar que ya lo tomaste.</div>
+                <div class="small" style="margin-top:8px;">Toca para marcar que ya lo tomaste.</div>
               </button>
             `).join('')}
           </div>
@@ -645,109 +697,108 @@
       `;
 
       screens.run.innerHTML = `
+        <div class="recommendation-hero">
+          <div class="small">MEJOR ELECCIÓN AHORA</div>
+          <div style="font-size:24px; font-weight:800; margin-top:6px;">
+            ${recommendedOffer ? `${gods[recommendedOffer].icon} ${gods[recommendedOffer].name}` : recommendedDoor ? `${rewards[recommendedDoor].icon} ${rewards[recommendedDoor].name}` : 'Marca opciones para recibir recomendación'}
+          </div>
+          <div class="small" style="margin-top:8px; color:#f8fafc; opacity:.9;">
+            ${recommendedOffer ? 'Según los dioses que viste en esta estancia.' : recommendedDoor ? 'Según las recompensas o puertas disponibles.' : 'Primero marca lo que te apareció.'}
+          </div>
+          <div class="action-row" style="margin-top:12px;">
+            ${recommendedOffer ? '<button class="btn gold" onclick="addRecommendedOffer()">Confirmar elección</button>' : ''}
+            <button class="btn subtle" onclick="nextRoom()">Siguiente estancia</button>
+          </div>
+        </div>
+
         <div class="card">
-          <h2>Opciones de dioses en esta estancia</h2>
-          <p class="small">Toca los dioses que te ofrece la estancia. Luego la app te dirá cuál conviene elegir.</p>
-          <div class="offer-scroller" style="margin-top:12px;">
+          <h2>Paso 1: ¿Qué dioses te aparecieron?</h2>
+          <div class="choice-grid" style="margin-top:12px;">
             ${allGodKeys.map(g => `
-              <button class="offer-card ${recommendedOffer===g?'recommended':''}" onclick="toggleOffer('${g}')">
-                <div class="god-top">
-                  <div class="god-icon" style="background:${gods[g].color}">${gods[g].icon}</div>
-                  <div><strong>${gods[g].name}</strong><div class="small">${state.seenOffers.includes(g)?'Marcado en esta estancia':'Tocar para marcar opción'}</div></div>
+              <button class="choice-card ${recommendedOffer===g?'recommended':''}" onclick="toggleOffer('${g}')">
+                <div class="choice-top">
+                  <div class="choice-icon" style="background:${gods[g].color}">${gods[g].icon}</div>
+                  <div>
+                    <strong>${gods[g].name}</strong>
+                    <div class="small">${state.seenOffers.includes(g)?'Marcado en esta estancia':'Tocar para marcar'}</div>
+                  </div>
                 </div>
               </button>
             `).join('')}
           </div>
+          <div class="action-row" style="margin-top:12px;">
+            <button class="btn" onclick="clearOffers()">Limpiar dioses</button>
+          </div>
         </div>
 
         <div class="card">
-          <h2>Recomendación de dios</h2>
-          ${state.seenOffers.length ? `
-            <div class="callout ok">${recommendedOffer ? `De las opciones marcadas, la mejor elección ahora suele ser <strong>${gods[recommendedOffer].name}</strong>.` : 'No hay una recomendación clara todavía.'}</div>
-            <div class="tag-row" style="margin-top:12px;">
-              ${offeredRanked.map(item => `<span class="tag ${item.key===recommendedOffer?'good':''} ${buildInfo.avoid.includes(item.key)?'warn':''}">${gods[item.key].name}</span>`).join('')}
-            </div>
-            <div class="action-row" style="margin-top:12px;">
-              <button class="btn primary" onclick="addRecommendedOffer()">Tomé la recomendada</button>
-              <button class="btn" onclick="clearOffers()">Limpiar opciones</button>
-            </div>
-          ` : `
-            <div class="callout soft">Aún no has marcado opciones de dioses en esta estancia.</div>
-          `}
-        </div>
-
-        <div class="card">
-          <h2>Opciones de recompensa / puerta</h2>
-          <p class="small">Marca las recompensas que ves entre habitaciones. La app te recomienda cuál suele convenir más.</p>
-          <div class="door-scroller" style="margin-top:12px;">
+          <h2>Paso 2: ¿Qué recompensas o puertas viste?</h2>
+          <div class="choice-grid" style="margin-top:12px;">
             ${rewardKeys.map(key => `
-              <button class="door-card ${recommendedDoor===key?'recommended':''}" onclick="toggleDoor('${key}')">
-                <div class="door-top">
-                  <div class="door-icon">${rewards[key].icon}</div>
-                  <div><strong>${rewards[key].name}</strong><div class="small">${state.seenDoors.includes(key)?'Marcada en esta estancia':'Tocar para marcar opción'}</div></div>
+              <button class="choice-card ${recommendedDoor===key?'recommended':''}" onclick="toggleDoor('${key}')">
+                <div class="choice-top">
+                  <div class="choice-icon">${rewards[key].icon}</div>
+                  <div>
+                    <strong>${rewards[key].name}</strong>
+                    <div class="small">${state.seenDoors.includes(key)?'Marcada en esta estancia':'Tocar para marcar'}</div>
+                  </div>
                 </div>
               </button>
             `).join('')}
           </div>
-        </div>
-
-        <div class="card">
-          <h2>Recomendación de puerta</h2>
-          ${state.seenDoors.length ? `
-            <div class="callout ok">${recommendedDoor ? `Entre las recompensas marcadas, normalmente conviene elegir <strong>${rewards[recommendedDoor].name}</strong>.` : 'No hay una recomendación clara todavía.'}</div>
-            <div class="tag-row" style="margin-top:12px;">
-              ${doorsRanked.map(item => `<span class="tag ${item.key===recommendedDoor?'good':''}">${rewards[item.key].name}</span>`).join('')}
-            </div>
-            <div class="callout soft" style="margin-top:12px;">${recommendedDoor ? rewards[recommendedDoor].desc : ''}</div>
-            <div class="action-row" style="margin-top:12px;">
-              <button class="btn" onclick="clearDoors()">Limpiar puertas</button>
-            </div>
-          ` : `
-            <div class="callout soft">Aún no has marcado recompensas de puerta en esta estancia.</div>
-          `}
-        </div>
-
-        <div class="card">
-          <h2>Dioses ya tomados</h2>
-          <div class="chips" style="margin-top:10px;">
-            ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Todavía no has confirmado ninguno</span>'}
+          <div class="action-row" style="margin-top:12px;">
+            <button class="btn" onclick="clearDoors()">Limpiar puertas</button>
           </div>
-          <div class="callout warn" style="margin-top:12px;">Si elegiste un dios, usa <strong>Tomé la recomendada</strong> o márcalo en la sección Build para dejarlo registrado.</div>
         </div>
+
+        <details class="card">
+          <summary>Ver análisis avanzado</summary>
+          <div class="details-body">
+            <div class="callout info">${inRunAdvice}</div>
+            <div class="callout soft" style="margin-top:10px;">${pivotMessage}</div>
+            <div class="chips" style="margin-top:10px;">
+              ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Sin dioses tomados</span>'}
+            </div>
+          </div>
+        </details>
       `;
 
       screens.guide.innerHTML = `
         <div class="card">
-          <h2>Cómo usar los botones</h2>
-          <div class="callout info">1. En <strong>Build</strong> defines arma, aspecto y tipo de build. 2. En <strong>Run</strong> marcas los dioses o recompensas que ves en esa estancia. 3. La app te recomienda una opción. 4. Si tomaste un dios, usa <strong>Tomé la recomendada</strong>. 5. Luego limpias y sigues con la siguiente estancia.</div>
+          <h2>Cómo usar la run</h2>
+          <div class="callout info">1. Marca los dioses que te salieron. 2. Marca las puertas o recompensas que viste. 3. Mira la tarjeta grande de recomendación. 4. Si elegiste un dios, toca <strong>Confirmar elección</strong>. 5. Usa <strong>Siguiente estancia</strong> para limpiar lo temporal y seguir.</div>
         </div>
 
+        <details class="card">
+          <summary>Ver qué significa cambio de plan</summary>
+          <div class="details-body">
+            <div class="callout soft">Te avisa cuando la run se está moviendo mejor hacia otro tipo de build distinto del inicial. No es obligatorio usarlo.</div>
+            <div class="callout info" style="margin-top:10px;">${pivotMessage}</div>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary>Ver checklist</summary>
+          <div class="details-body">
+            <div class="callout soft">La checklist sirve para no olvidar lo básico: bendición principal, segundo dios, dupla, magia y supervivencia.</div>
+            <div class="check-grid" style="margin-top:12px;">
+              ${[
+                ['mainBoon','Ya encontré mi bendición principal'],
+                ['secondGod','Ya tengo mi segundo dios complementario'],
+                ['duoPlan','Ya sé qué dupla quiero perseguir'],
+                ['magickPlan','Mi magia / omega está resuelta'],
+                ['survivalPlan','Tengo control o supervivencia suficiente'],
+              ].map(([k,l]) => `<label class="check-item"><input type="checkbox" ${state.runState[k]?'checked':''} onchange="toggleCheck('${k}')" /><span>${l}</span></label>`).join('')}
+            </div>
+            <div class="callout soft" style="margin-top:12px;">${checkGuidance}</div>
+          </div>
+        </details>
+
         <div class="card">
-          <h2>Qué significa cada recompensa</h2>
+          <h2>Recompensas en español</h2>
           <div class="note-grid" style="margin-top:12px;">
             ${rewardKeys.map(key => `<div class="line-card"><strong>${rewards[key].icon} ${rewards[key].name}</strong><div class="small" style="margin-top:6px;">${rewards[key].desc}</div></div>`).join('')}
           </div>
-        </div>
-
-        <div class="card">
-          <h2>¿Para qué sirve cambio de plan?</h2>
-          <div class="callout soft">Te avisa cuando la run te llevó hacia otro camino distinto del inicial. No es obligatorio usarlo, pero ayuda cuando los dioses que te salieron ya no encajan con tu plan original.</div>
-          <div class="callout info" style="margin-top:12px;">${pivotMessage}</div>
-        </div>
-
-        <div class="card">
-          <h2>¿Para qué sirve la checklist?</h2>
-          <div class="callout soft">Es una ayuda visual para no olvidar lo básico: daño principal, segundo dios, dupla, magia y supervivencia. No es obligatoria, pero sirve mucho si te estás acostumbrando a leer las runs.</div>
-          <div class="check-grid" style="margin-top:12px;">
-            ${[
-              ['mainBoon','Ya encontré mi bendición principal'],
-              ['secondGod','Ya tengo mi segundo dios complementario'],
-              ['duoPlan','Ya sé qué dupla quiero perseguir'],
-              ['magickPlan','Mi magia / omega está resuelta'],
-              ['survivalPlan','Tengo control o supervivencia suficiente'],
-            ].map(([k,l]) => `<label class="check-item"><input type="checkbox" ${state.runState[k]?'checked':''} onchange="toggleCheck('${k}')" /><span>${l}</span></label>`).join('')}
-          </div>
-          <div class="callout soft" style="margin-top:12px;">${checkGuidance}</div>
         </div>
 
         <div class="card">
@@ -761,7 +812,6 @@
               </div>
             `).join('')}
           </div>
-          <div class="callout info" style="margin-top:12px;">Dupla sugerida para este plan: ${gods[buildInfo.duo[0]].name} + ${gods[buildInfo.duo[1]].name}</div>
         </div>
       `;
     }
@@ -777,3 +827,4 @@
   </script>
 </body>
 </html>
+
