@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#16122b" />
+  <title>Hades II Companion Mobile</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #16122b;
+      --panel: rgba(21, 26, 48, 0.9);
+      --panel-2: rgba(31, 38, 70, 0.9);
+      --line: rgba(255,255,255,0.1);
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      --accent: #8b5cf6;
+      --accent-2: #c084fc;
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --bad: #f43f5e;
+      --shadow: 0 14px 40px rgba(0,0,0,.32);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(139,92,246,.32), transparent 30%),
+        linear-gradient(180deg, #090d19 0%, #121729 100%);
+      min-height: 100vh;
+      padding-bottom: 88px;
+    }
+
+    .app {
+      width: min(100%, 560px);
+      margin: 0 auto;
+      padding: max(14px, env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom));
+    }
+
+    .hero, .card, .sheet {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero { padding: 18px; margin-bottom: 14px; }
+    .card { padding: 16px; margin-bottom: 14px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.06);
+      padding: 7px 12px; border-radius: 999px; color: var(--muted); font-size: 13px;
+    }
+
+    h1 { font-size: 28px; line-height: 1.08; margin: 12px 0 8px; }
+    h2 { font-size: 18px; margin: 0 0 6px; }
+    h3 { font-size: 15px; margin: 0 0 6px; }
+    p { color: var(--muted); line-height: 1.55; margin: 0; }
+    .small { font-size: 13px; color: var(--muted); }
+
+    .top-actions, .chips, .tag-row, .quick-filters {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+
+    button {
+      border: 0; cursor: pointer; font: inherit; color: inherit;
+    }
+
+    .btn {
+      min-height: 44px; padding: 11px 14px; border-radius: 14px;
+      background: rgba(255,255,255,.06); border: 1px solid var(--line);
+      color: var(--text);
+    }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+    .btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+
+    .search {
+      width: 100%; min-height: 46px; margin-top: 12px; padding: 12px 14px;
+      border-radius: 14px; border: 1px solid var(--line);
+      background: rgba(255,255,255,.06); color: var(--text); outline: none;
+    }
+
+    .weapon-scroller, .aspect-scroller, .god-scroller {
+      display: grid; gap: 10px; grid-auto-flow: column; grid-auto-columns: 84%;
+      overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x proximity;
+    }
+
+    .weapon-card, .aspect-card, .god-card, .mini, .line-card, .check-item {
+      border: 1px solid var(--line); background: var(--panel-2); border-radius: 18px;
+    }
+
+    .weapon-card {
+      padding: 14px; display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: center;
+      scroll-snap-align: start;
+    }
+    .weapon-card.active, .aspect-card.active, .build-btn.active, .god-card.active { outline: 2px solid rgba(192,132,252,.7); }
+
+    .weapon-icon, .god-icon {
+      width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center;
+      background: rgba(255,255,255,.08); font-size: 28px;
+    }
+
+    .hero-art {
+      margin-top: 14px; padding: 16px; border-radius: 22px; border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(139,92,246,.25), rgba(244,114,182,.18));
+      display: grid; gap: 12px; justify-items: center;
+    }
+    .main-art, .aspect-art {
+      width: 100%; display: grid; place-items: center; border-radius: 22px;
+      border: 1px solid var(--line); background: rgba(255,255,255,.05);
+    }
+    .main-art { min-height: 150px; font-size: 72px; }
+    .aspect-art { min-height: 82px; font-size: 42px; }
+
+    .stat-grid, .build-grid, .duo-grid, .two-up, .note-grid, .check-grid {
+      display: grid; gap: 10px;
+    }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: 14px; }
+    .build-grid { grid-template-columns: repeat(2, 1fr); }
+    .duo-grid, .two-up, .note-grid, .check-grid { grid-template-columns: 1fr; }
+
+    .stat label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+    .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .bar > span { height: 100%; display: block; background: linear-gradient(90deg, #818cf8, #c084fc); }
+
+    .aspect-card, .build-btn, .mini, .line-card, .check-item, .god-card { padding: 12px; }
+
+    .aspect-preview {
+      height: 68px; border-radius: 16px; margin-bottom: 10px;
+      border: 1px solid var(--line); display: grid; place-items: center; font-size: 30px;
+    }
+
+    .god-card { text-align: left; width: 100%; }
+    .god-top { display: flex; gap: 12px; align-items: center; }
+
+    .duo {
+      display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center;
+      border: 1px solid var(--line); border-radius: 18px; background: var(--panel-2); padding: 10px;
+    }
+
+    .chip, .tag {
+      border-radius: 999px; padding: 6px 10px; font-size: 12px;
+      background: rgba(139,92,246,.18); color: #e9d5ff; border: 1px solid rgba(139,92,246,.25);
+    }
+
+    .callout {
+      padding: 13px; border-radius: 16px; font-size: 14px; line-height: 1.55; border: 1px solid transparent;
+    }
+    .callout.ok { background: rgba(16,185,129,.12); border-color: rgba(16,185,129,.24); color: #a7f3d0; }
+    .callout.warn { background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.22); color: #fde68a; }
+    .callout.info { background: rgba(99,102,241,.14); border-color: rgba(99,102,241,.25); color: #c7d2fe; }
+    .callout.soft { background: rgba(255,255,255,.05); border-color: var(--line); color: var(--muted); }
+
+    .quality { padding: 14px; border-radius: 18px; border: 1px solid var(--line); }
+    .quality.ok { background: rgba(16,185,129,.12); }
+    .quality.mid { background: rgba(59,130,246,.12); }
+    .quality.warn { background: rgba(245,158,11,.12); }
+    .quality.bad { background: rgba(244,63,94,.12); }
+    .quality-top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+
+    .check-item { display: flex; gap: 10px; align-items: flex-start; }
+    .check-item input { margin-top: 3px; transform: scale(1.15); }
+
+    .sheet {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+      border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      width: min(100%, 560px); margin: 0 auto;
+    }
+    .sheet button { min-height: 50px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid var(--line); font-size: 12px; }
+    .sheet button.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div class="pill">📱 Hades II Mobile Companion</div>
+      <h1>Versión móvil tipo app para tus runs</h1>
+      <p>Hecha para usar con el dedo, en pantalla vertical, y guardarla como acceso directo en tu celular.</p>
+      <div class="top-actions" style="margin-top:12px;">
+        <button class="btn primary" id="quickStartBtn">Build inicial</button>
+        <button class="btn" id="resetBtn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Buscar arma</h2>
+      <input class="search" id="searchInput" type="text" placeholder="Ej: axe, skull, rápida, burst..." />
+      <div class="weapon-scroller" id="weaponList" style="margin-top:12px;"></div>
+    </div>
+
+    <div id="screen-overview"></div>
+    <div id="screen-build" class="hidden"></div>
+    <div id="screen-run" class="hidden"></div>
+    <div id="screen-guide" class="hidden"></div>
+  </div>
+
+  <div class="sheet">
+    <button class="active" data-screen="overview">Resumen</button>
+    <button data-screen="build">Build</button>
+    <button data-screen="run">Run</button>
+    <button data-screen="guide">Guía</button>
+  </div>
+
+  <script>
+    const gods = {
+      zeus: { name: "Zeus", icon: "⚡", type: "Golpes rápidos", summary: "Ideal para armas o patrones con muchos impactos por segundo.", color: "linear-gradient(135deg,#fde68a,#fbbf24)" },
+      poseidon: { name: "Poseidón", icon: "🌊", type: "Control y limpieza", summary: "Muy cómodo para limpiar salas y mantener presión.", color: "linear-gradient(135deg,#bae6fd,#67e8f9)" },
+      hestia: { name: "Hestia", icon: "🔥", type: "Daño constante", summary: "Muy buena para DPS sostenido y builds activas.", color: "linear-gradient(135deg,#fdba74,#f87171)" },
+      hephaestus: { name: "Hefesto", icon: "🔨", type: "Daño extra por ritmo", summary: "Funciona muy bien con armas rápidas o de contacto frecuente.", color: "linear-gradient(135deg,#d6d3d1,#a8a29e)" },
+      aphrodite: { name: "Afrodita", icon: "💗", type: "Golpes fuertes", summary: "Excelente para melee y daño alto por impacto.", color: "linear-gradient(135deg,#fbcfe8,#fda4af)" },
+      demeter: { name: "Deméter", icon: "❄️", type: "Control y seguridad", summary: "Ideal para armas lentas o para ganar comodidad.", color: "linear-gradient(135deg,#dbeafe,#c4b5fd)" },
+      apollo: { name: "Apolo", icon: "☀️", type: "Espacio y consistencia", summary: "Muy bueno para limpieza, rango y builds cómodas.", color: "linear-gradient(135deg,#fef3c7,#fde68a)" },
+      hera: { name: "Hera", icon: "👑", type: "Builds planificadas", summary: "Gran techo de daño en armas pesadas o técnicas.", color: "linear-gradient(135deg,#ddd6fe,#f5d0fe)" },
+      ares: { name: "Ares", icon: "🗡️", type: "Agresión", summary: "Muy bueno para jefes y setups ofensivos.", color: "linear-gradient(135deg,#fecdd3,#fdba74)" },
+      hermes: { name: "Hermes", icon: "💨", type: "Fluidez", summary: "Mejora movilidad, ritmo y consistencia casi siempre.", color: "linear-gradient(135deg,#d1fae5,#99f6e4)" },
+      selene: { name: "Selene", icon: "🌙", type: "Hex y magia", summary: "Brilla cuando tu build usa bien el Magick y los Hexes.", color: "linear-gradient(135deg,#e0e7ff,#e2e8f0)" },
+    };
+
+    const elements = {
+      fire: { name: "Fuego", hint: "Agresión, daño constante, ofensiva activa." },
+      water: { name: "Agua", hint: "Control, seguridad, presión estable." },
+      earth: { name: "Tierra", hint: "Robustez, daño pesado, dominio del espacio." },
+      air: { name: "Aire", hint: "Ritmo, movilidad, fluidez." },
+    };
+
+    const keepsakes = {
+      aggressive: ["Keepsake del dios principal temprano", "Algo que aumente daño o presión", "Hermes si te falta fluidez"],
+      safe: ["Keepsake del dios de control", "Opciones defensivas o de estabilidad", "Algo que asegure consistencia"],
+      bossing: ["Keepsake para cerrar duo o dios principal", "Refuerzo de daño de jefe", "Herramienta de burst"],
+      beginner: ["Keepsake del dios base de la build", "Uno fácil de usar desde la primera región", "Opciones de comodidad"],
+    };
+
+    const hammerAdviceByStyle = {
+      rapid: ["Prioriza mejoras que aumenten frecuencia o cobertura", "Evita martillos que vuelvan torpe tu patrón si aún aprendes el arma", "Si una mejora convierte el kit en más fácil de aplicar, suele valer mucho"],
+      heavy: ["Prioriza mejoras que aumenten impacto o seguridad en las ventanas", "Valen mucho las mejoras que facilitan conectar golpes grandes", "Evita opciones que bajen demasiado la consistencia"],
+      cast: ["Busca martillos que mejoren control del espacio o integración con Cast", "Valen mucho los que ordenan tu patrón", "No sobrecargues la build con demasiadas capas si recién partes"],
+    };
+
+    const weapons = [
+      { id: "staff", icon: "🪄", name: "Witch's Staff", category: "Técnica / híbrida", playstyle: "Segura, flexible, buena para empezar.", speed: 55, burst: 60, control: 78, comfort: 88, coreStyle: "cast", mainQuestion: "¿Quieres una build cómoda, de control o más planeada?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Equilibrado", focus: "Attack / control básico", topGods: ["apollo","demeter","hera","hermes"], duoPairs: [["apollo","demeter"],["apollo","hera"]], elements: ["water","earth"], recommendedBoons: ["Apolo para control y limpieza","Deméter para seguridad","Hermes para fluidez"], avoidBoons: ["Exceso de picks para frecuencia pura sin plan","Boons que no apoyen Attack, Special o Cast definido"], buildTypes: { attack: { gods:["apollo","demeter","aphrodite"], duo:["apollo","demeter"], avoid:["zeus"], hammers:["Más alcance o control","Más consistencia en Attack","Mejoras cómodas antes que raras"] }, special: { gods:["apollo","hera","demeter"], duo:["apollo","hera"], avoid:["hephaestus"], hammers:["Mejoras que integren mejor el Special","Más control de espacio"] }, cast: { gods:["apollo","demeter","selene"], duo:["apollo","demeter"], avoid:["ares"], hammers:["Más sinergia con control","Cualquier mejora que simplifique el bucle Cast + arma"] }, omega: { gods:["demeter","hera","selene"], duo:["hera","demeter"], avoid:["poseidon"], hammers:["Seguridad para cargar","Más valor por Omega","Mejoras de consistencia"] } } },
+        { id: "circe", name: "Aspecto de Circe", style: "Magick / Omega", focus: "Omega y hechicería", topGods: ["demeter","hera","selene","apollo","hermes"], duoPairs: [["demeter","apollo"],["hera","demeter"]], elements: ["earth","water"], recommendedBoons: ["Selene si usarás Hex de verdad","Deméter para cargar con seguridad"], avoidBoons: ["Boons puramente de frecuencia","Picks sin apoyo de Magick"], buildTypes: { attack: { gods:["apollo","demeter"], duo:["apollo","demeter"], avoid:["zeus"], hammers:["Comodidad antes que velocidad","No sacrifiques control"] }, special: { gods:["hera","apollo","demeter"], duo:["apollo","hera"], avoid:["hestia"], hammers:["Mejoras de integración y control"] }, cast: { gods:["apollo","selene","demeter"], duo:["apollo","demeter"], avoid:["ares"], hammers:["Más orden para el bucle de Cast","Cualquier mejora que te dé ventanas"] }, omega: { gods:["selene","demeter","hera"], duo:["hera","demeter"], avoid:["poseidon"], hammers:["Todo lo que premie Omega","Herramientas para cargar y sostener Magick"] } } },
+        { id: "momus", name: "Aspecto de Momus", style: "Híbrido agresivo", focus: "Ataque activo y ritmo", topGods: ["apollo","aphrodite","hera","hermes"], duoPairs: [["aphrodite","apollo"],["apollo","hera"]], elements: ["fire","water"], recommendedBoons: ["Afrodita si vas a pegar fuerte","Apolo para estabilidad"], avoidBoons: ["Picks aleatorios que no apoyen tu núcleo"], buildTypes: { attack: { gods:["aphrodite","apollo","hera"], duo:["aphrodite","apollo"], avoid:["zeus"], hammers:["Golpes más cómodos o con mejor cobertura"] }, special: { gods:["apollo","hera"], duo:["apollo","hera"], avoid:["hephaestus"], hammers:["Mejoras claras y consistentes"] }, cast: { gods:["apollo","demeter"], duo:["apollo","demeter"], avoid:["ares"], hammers:["No compliques el patrón si no es necesario"] }, omega: { gods:["hera","demeter","selene"], duo:["hera","demeter"], avoid:["poseidon"], hammers:["Seguridad al cargar","Más recompensa por Omega"] } } }
+      ] },
+      { id: "blades", icon: "🗡️", name: "Sister Blades", category: "Rápida / agresiva", playstyle: "Melee veloz, mucho contacto, decisiones rápidas.", speed: 95, burst: 78, control: 48, comfort: 52, coreStyle: "rapid", mainQuestion: "¿Quieres daño por frecuencia o burst agresivo cuerpo a cuerpo?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Rapidez pura", focus: "Attack rápido", topGods: ["zeus","poseidon","hestia","hephaestus","hermes"], duoPairs: [["zeus","poseidon"],["zeus","hestia"]], elements: ["fire","air","water"], recommendedBoons: ["Zeus suele ser el inicio más natural","Poseidón ordena y limpia","Hermes mejora muchísimo la experiencia"], avoidBoons: ["Boons centrados en golpes lentos","Exceso de picks sin valor por frecuencia"], buildTypes: { attack: { gods:["zeus","poseidon","hestia"], duo:["zeus","poseidon"], avoid:["aphrodite"], hammers:["Más frecuencia","Más cobertura","Mejoras que mantengan el flujo"] }, special: { gods:["hestia","poseidon","hephaestus"], duo:["zeus","hestia"], avoid:["hera"], hammers:["Más consistencia de patrón"] }, cast: { gods:["demeter","apollo"], duo:["aphrodite","demeter"], avoid:["ares"], hammers:["Solo si de verdad integrarás Cast"] }, omega: { gods:["demeter","selene"], duo:["aphrodite","demeter"], avoid:["poseidon"], hammers:["Pocas, solo si apoyan el ritmo"] } } },
+        { id: "pan", name: "Aspecto de Pan", style: "Burst / Special", focus: "Special agresivo", topGods: ["aphrodite","ares","hestia","demeter","hermes"], duoPairs: [["aphrodite","ares"],["aphrodite","demeter"]], elements: ["fire","water"], recommendedBoons: ["Afrodita y Ares para matar jefes rápido","Deméter si te falta orden"], avoidBoons: ["Picks de limpieza que bajen demasiado tu burst"], buildTypes: { attack: { gods:["zeus","hestia"], duo:["zeus","hestia"], avoid:["hera"], hammers:["Solo si no desvía el plan principal"] }, special: { gods:["aphrodite","ares","demeter"], duo:["aphrodite","ares"], avoid:["poseidon"], hammers:["Más impacto en Special","Ventanas más seguras"] }, cast: { gods:["demeter","apollo"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["De apoyo, no como núcleo"] }, omega: { gods:["demeter","selene"], duo:["aphrodite","demeter"], avoid:["hestia"], hammers:["Solo si aumentan el burst real"] } } },
+        { id: "artemis", name: "Aspecto de Artemisa", style: "Técnico / precisión", focus: "Ventanas y ejecución", topGods: ["zeus","aphrodite","demeter","hermes"], duoPairs: [["zeus","poseidon"],["aphrodite","demeter"]], elements: ["air","fire"], recommendedBoons: ["Zeus si tu plan es ritmo","Afrodita si quieres castigar fuerte"], avoidBoons: ["Mezclar demasiados núcleos a la vez"], buildTypes: { attack: { gods:["zeus","aphrodite","hestia"], duo:["zeus","poseidon"], avoid:["hera"], hammers:["Cobertura o facilidad de conectar"] }, special: { gods:["aphrodite","hestia"], duo:["aphrodite","demeter"], avoid:["poseidon"], hammers:["Más consistencia"] }, cast: { gods:["demeter","apollo"], duo:["aphrodite","demeter"], avoid:["ares"], hammers:["Mantén el kit simple"] }, omega: { gods:["demeter","selene"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["Solo si ayudan de verdad"] } } }
+      ] },
+      { id: "flames", icon: "🔥", name: "Umbral Flames", category: "Rápida / técnica", playstyle: "Muchos impactos, spacing, volumen de daño.", speed: 92, burst: 58, control: 70, comfort: 60, coreStyle: "rapid", mainQuestion: "¿Quieres DPS sostenido puro o una versión más segura y ordenada?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Volumen de impactos", focus: "Attack y presión", topGods: ["zeus","hestia","poseidon","hephaestus","hermes"], duoPairs: [["zeus","hestia"],["zeus","poseidon"]], elements: ["fire","air","water"], recommendedBoons: ["Zeus y Hestia son de lo más naturales","Poseidón ayuda a limpiar"], avoidBoons: ["Escalados para golpes muy pesados"], buildTypes: { attack: { gods:["zeus","hestia","poseidon"], duo:["zeus","hestia"], avoid:["aphrodite"], hammers:["Más impactos","Más cobertura","Mejoras muy consistentes"] }, special: { gods:["hestia","hephaestus","poseidon"], duo:["zeus","poseidon"], avoid:["hera"], hammers:["Más presión sostenida"] }, cast: { gods:["apollo","demeter"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Solo si el control es importante"] }, omega: { gods:["demeter","selene"], duo:["demeter","apollo"], avoid:["poseidon"], hammers:["Si mejora la seguridad y el valor"] } } },
+        { id: "moros", name: "Aspecto de Moros", style: "Técnico / setup", focus: "Sinergia y timing", topGods: ["zeus","hestia","apollo","demeter","hermes"], duoPairs: [["zeus","hestia"],["demeter","apollo"]], elements: ["fire","water"], recommendedBoons: ["Deméter y Apolo si quieres que el arma se sienta más controlable"], avoidBoons: ["Tomar muchas piezas de agresión sin manejo del spacing"], buildTypes: { attack: { gods:["zeus","hestia"], duo:["zeus","hestia"], avoid:["aphrodite"], hammers:["Más consistencia para aplicar el patrón"] }, special: { gods:["hestia","apollo"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Control y orden"] }, cast: { gods:["apollo","demeter","selene"], duo:["demeter","apollo"], avoid:["poseidon"], hammers:["Si el plan es táctico, apóyalo"] }, omega: { gods:["selene","demeter"], duo:["demeter","apollo"], avoid:["zeus"], hammers:["Carga segura y retorno claro"] } } },
+        { id: "eos", name: "Aspecto de Eos", style: "Presión sostenida", focus: "Ataque persistente", topGods: ["zeus","poseidon","hestia","hephaestus"], duoPairs: [["zeus","poseidon"],["poseidon","hestia"]], elements: ["air","fire","water"], recommendedBoons: ["Zeus casi siempre es excelente","Poseidón aporta limpieza muy cómoda"], avoidBoons: ["Demasiados picks de burst lento"], buildTypes: { attack: { gods:["zeus","poseidon","hestia"], duo:["zeus","poseidon"], avoid:["aphrodite"], hammers:["Todo lo que mejore cobertura y frecuencia"] }, special: { gods:["hestia","hephaestus"], duo:["poseidon","hestia"], avoid:["hera"], hammers:["Consistencia primero"] }, cast: { gods:["apollo","demeter"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Apoyo secundario"] }, omega: { gods:["selene","demeter"], duo:["demeter","apollo"], avoid:["poseidon"], hammers:["Solo si no rompen el flujo"] } } }
+      ] },
+      { id: "axe", icon: "🪓", name: "Moonstone Axe", category: "Pesada / golpe fuerte", playstyle: "Lenta, poderosa, castiga ventanas con mucha fuerza.", speed: 30, burst: 96, control: 72, comfort: 57, coreStyle: "heavy", mainQuestion: "¿Quieres daño puro por golpe o control para usarla con más seguridad?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Pesada clásica", focus: "Golpes fuertes", topGods: ["aphrodite","demeter","apollo","hera","ares","hermes"], duoPairs: [["aphrodite","demeter"],["aphrodite","apollo"],["ares","aphrodite"]], elements: ["earth","fire","water"], recommendedBoons: ["Afrodita y Deméter son de las bases más sólidas","Hermes ayuda mucho a que no se sienta tosca"], avoidBoons: ["Boons de frecuencia pura","Picks sin valor por golpe grande"], buildTypes: { attack: { gods:["aphrodite","demeter","apollo"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["Más impacto","Mejoras para conectar golpes","Seguridad en ventanas"] }, special: { gods:["apollo","hera","demeter"], duo:["hera","apollo"], avoid:["poseidon"], hammers:["Cobertura y consistencia"] }, cast: { gods:["apollo","demeter"], duo:["demeter","apollo"], avoid:["hestia"], hammers:["Orden y control"] }, omega: { gods:["hera","demeter","selene"], duo:["hera","demeter"], avoid:["zeus"], hammers:["Todo lo que premie Omega con seguridad"] } } },
+        { id: "charon", name: "Aspecto de Caronte", style: "Técnico / omega", focus: "Omega y control de tempo", topGods: ["hera","demeter","apollo","selene","hermes"], duoPairs: [["hera","apollo"],["hera","demeter"]], elements: ["earth","water"], recommendedBoons: ["Hera si quieres una build planeada","Selene si el Magick realmente será central"], avoidBoons: ["Mucho pick reactivo sin plan central"], buildTypes: { attack: { gods:["aphrodite","demeter"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["No rompas el plan Omega"] }, special: { gods:["apollo","hera"], duo:["hera","apollo"], avoid:["poseidon"], hammers:["Más control o recompensa real"] }, cast: { gods:["apollo","demeter","selene"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Control total del espacio"] }, omega: { gods:["hera","selene","demeter"], duo:["hera","demeter"], avoid:["hestia"], hammers:["Premios claros a Omega","Seguridad al cargar"] } } },
+        { id: "thanatos", name: "Aspecto de Tánatos", style: "Ofensiva máxima", focus: "Burst y jefe", topGods: ["ares","aphrodite","hera","demeter"], duoPairs: [["ares","aphrodite"],["ares","hera"]], elements: ["fire","earth"], recommendedBoons: ["Ares y Afrodita si quieres hacer mucho daño a jefes"], avoidBoons: ["Builds de limpieza blanda si tu meta es burst"], buildTypes: { attack: { gods:["ares","aphrodite","demeter"], duo:["ares","aphrodite"], avoid:["zeus"], hammers:["Más daño real por ventana","Todo lo que ayude a conectar"] }, special: { gods:["hera","apollo"], duo:["ares","hera"], avoid:["poseidon"], hammers:["Consistencia, no rarezas"] }, cast: { gods:["demeter","apollo"], duo:["demeter","apollo"], avoid:["hestia"], hammers:["Solo como apoyo"] }, omega: { gods:["hera","selene"], duo:["ares","hera"], avoid:["poseidon"], hammers:["Omega con daño explosivo"] } } }
+      ] },
+      { id: "skull", icon: "💀", name: "Argent Skull", category: "Técnica / burst", playstyle: "Munición, recogida, orden mental y daño muy alto si la dominas.", speed: 52, burst: 88, control: 72, comfort: 50, coreStyle: "cast", mainQuestion: "¿Tu daño principal vendrá de Attack, Special o Cast?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Equilibrado", focus: "Burst base", topGods: ["hera","apollo","aphrodite","demeter","hermes"], duoPairs: [["hera","apollo"],["hera","aphrodite"]], elements: ["earth","water","fire"], recommendedBoons: ["Apolo aporta muchísima comodidad","Hera sube mucho el techo de daño"], avoidBoons: ["Improvisar sin decidir si el núcleo es Attack, Special o Cast"], buildTypes: { attack: { gods:["hera","aphrodite","apollo"], duo:["hera","aphrodite"], avoid:["zeus"], hammers:["Más impacto o comodidad","Ayuda a recuperar control"] }, special: { gods:["apollo","hera","demeter"], duo:["hera","apollo"], avoid:["poseidon"], hammers:["Más orden y facilidad"] }, cast: { gods:["apollo","demeter","selene"], duo:["demeter","apollo"], avoid:["hestia"], hammers:["Refuerza la integración Cast + arma"] }, omega: { gods:["hera","selene","demeter"], duo:["hera","demeter"], avoid:["zeus"], hammers:["Valor alto por Omega"] } } },
+        { id: "medea", name: "Aspecto de Medea", style: "Agresivo / técnico", focus: "Burst y riesgo", topGods: ["aphrodite","ares","hera","demeter"], duoPairs: [["aphrodite","ares"],["ares","hera"]], elements: ["fire","earth"], recommendedBoons: ["Afrodita y Ares para presión fuerte","Deméter si el arma se te vuelve caótica"], avoidBoons: ["Builds de pura limpieza si tu plan es burst"], buildTypes: { attack: { gods:["aphrodite","ares","hera"], duo:["aphrodite","ares"], avoid:["zeus"], hammers:["Más burst real","Ventanas más fáciles de explotar"] }, special: { gods:["hera","apollo"], duo:["ares","hera"], avoid:["poseidon"], hammers:["Mejoras de consistencia"] }, cast: { gods:["demeter","apollo"], duo:["demeter","apollo"], avoid:["hestia"], hammers:["Apoyo, no dispersión"] }, omega: { gods:["hera","selene"], duo:["ares","hera"], avoid:["poseidon"], hammers:["Omega con retorno alto"] } } },
+        { id: "persephone", name: "Aspecto de Perséfone", style: "Control / cast", focus: "Cast y tempo", topGods: ["apollo","demeter","hera","selene"], duoPairs: [["demeter","apollo"],["hera","apollo"]], elements: ["water","earth"], recommendedBoons: ["Deméter y Apolo si buscas estabilidad total"], avoidBoons: ["Picks que rompan la lógica de control"], buildTypes: { attack: { gods:["hera","apollo"], duo:["hera","apollo"], avoid:["zeus"], hammers:["No sacrifiques el plan de control"] }, special: { gods:["apollo","demeter"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Más control"] }, cast: { gods:["apollo","demeter","selene"], duo:["demeter","apollo"], avoid:["hestia"], hammers:["Todo lo que ordene el bucle de Cast"] }, omega: { gods:["selene","hera","demeter"], duo:["hera","demeter"], avoid:["poseidon"], hammers:["Carga segura y recompensa clara"] } } }
+      ] },
+      { id: "coat", icon: "🧥", name: "Black Coat", category: "Híbrida / dinámica", playstyle: "Mezcla melee y presión a distancia, muy flexible.", speed: 84, burst: 76, control: 66, comfort: 64, coreStyle: "rapid", mainQuestion: "¿Tu patrón dominante será rápido o de impactos más pesados?", aspects: [
+        { id: "melinoe", name: "Aspecto de Melinoë", style: "Híbrido base", focus: "Ritmo y versatilidad", topGods: ["zeus","hestia","poseidon","aphrodite","demeter","hermes"], duoPairs: [["zeus","hestia"],["zeus","poseidon"],["aphrodite","demeter"]], elements: ["fire","air","water"], recommendedBoons: ["Zeus y Hestia suelen sentirse excelentes","Deméter ayuda bastante si el arma se vuelve caótica"], avoidBoons: ["Tomar picks pesados si ya decidiste ir rápido"], buildTypes: { attack: { gods:["zeus","hestia","poseidon"], duo:["zeus","hestia"], avoid:["hera"], hammers:["Más frecuencia y flujo"] }, special: { gods:["poseidon","hestia","hephaestus"], duo:["zeus","poseidon"], avoid:["ares"], hammers:["Cobertura y limpieza"] }, cast: { gods:["apollo","demeter"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["Solo si ordena el arma"] }, omega: { gods:["demeter","selene","hera"], duo:["aphrodite","demeter"], avoid:["poseidon"], hammers:["Más valor por carga"] } } },
+        { id: "nyx", name: "Aspecto de Nix", style: "Técnico / control", focus: "Magick y ejecución", topGods: ["demeter","apollo","hera","selene","hermes"], duoPairs: [["demeter","apollo"],["hera","apollo"]], elements: ["water","air","earth"], recommendedBoons: ["Selene solo si sostendrás Magick de verdad","Apolo y Deméter para control fuerte"], avoidBoons: ["Exceso de picks de frecuencia que no apoyen el plan"], buildTypes: { attack: { gods:["apollo","demeter","hera"], duo:["demeter","apollo"], avoid:["zeus"], hammers:["Control antes que locura"] }, special: { gods:["apollo","hera"], duo:["hera","apollo"], avoid:["poseidon"], hammers:["Patrones claros"] }, cast: { gods:["apollo","demeter","selene"], duo:["demeter","apollo"], avoid:["ares"], hammers:["Potencia la zona y el orden"] }, omega: { gods:["selene","hera","demeter"], duo:["hera","demeter"], avoid:["hestia"], hammers:["Omega con retorno real"] } } },
+        { id: "xinth", name: "Aspecto de Xinth", style: "Agresivo / jefe", focus: "Presión y daño", topGods: ["ares","aphrodite","zeus","hestia","hermes"], duoPairs: [["ares","aphrodite"],["zeus","hestia"]], elements: ["fire","air"], recommendedBoons: ["Ares si quieres jefes","Zeus/Hestia si el patrón es más rápido"], avoidBoons: ["Picks de control lento si tu plan es presión total"], buildTypes: { attack: { gods:["zeus","hestia","ares"], duo:["zeus","hestia"], avoid:["hera"], hammers:["Más presión","Cobertura","Fluidez"] }, special: { gods:["aphrodite","ares","hestia"], duo:["ares","aphrodite"], avoid:["poseidon"], hammers:["Burst y daño real"] }, cast: { gods:["demeter","apollo"], duo:["aphrodite","demeter"], avoid:["zeus"], hammers:["Apoyo secundario"] }, omega: { gods:["selene","ares","demeter"], duo:["ares","aphrodite"], avoid:["poseidon"], hammers:["Carga con recompensa ofensiva"] } } }
+      ] },
+    ];
+
+    const state = {
+      selectedWeaponId: 'axe',
+      selectedAspectId: 'melinoe',
+      buildType: 'attack',
+      goal: 'beginner',
+      pickedGods: [],
+      search: '',
+      runState: { mainBoon:false, secondGod:false, duoPlan:false, magickPlan:false, survivalPlan:false },
+      screen: 'overview',
+    };
+
+    const searchInput = document.getElementById('searchInput');
+    const weaponList = document.getElementById('weaponList');
+    const screens = {
+      overview: document.getElementById('screen-overview'),
+      build: document.getElementById('screen-build'),
+      run: document.getElementById('screen-run'),
+      guide: document.getElementById('screen-guide'),
+    };
+
+    document.getElementById('quickStartBtn').onclick = () => { state.selectedWeaponId='axe'; state.goal='beginner'; state.buildType='attack'; syncAspect(); render(); };
+    document.getElementById('resetBtn').onclick = resetRun;
+    searchInput.addEventListener('input', e => { state.search = e.target.value.toLowerCase().trim(); renderWeapons(); });
+
+    document.querySelectorAll('.sheet button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.screen = btn.dataset.screen;
+        renderScreens();
+      });
+    });
+
+    function getSelectedWeapon(){ return weapons.find(w => w.id === state.selectedWeaponId) || weapons[0]; }
+    function syncAspect(){ const w = getSelectedWeapon(); if(!w.aspects.find(a => a.id === state.selectedAspectId)) state.selectedAspectId = w.aspects[0].id; }
+    function getSelectedAspect(){ const w = getSelectedWeapon(); return w.aspects.find(a => a.id === state.selectedAspectId) || w.aspects[0]; }
+    function getBuildInfo(){ return getSelectedAspect().buildTypes[state.buildType]; }
+    function artEmoji(id){ return ({ staff:'🪄', blades:'🗡️', flames:'🔥', axe:'🪓', skull:'💀', coat:'🧥' })[id] || '✨'; }
+    function aspectGradient(id){ return ({ melinoe:'linear-gradient(135deg,#f5d0fe,#ddd6fe,#e0e7ff)', circe:'linear-gradient(135deg,#ddd6fe,#f5d0fe,#ffe4e6)', momus:'linear-gradient(135deg,#fef3c7,#fed7aa,#fecdd3)', pan:'linear-gradient(135deg,#d1fae5,#ccfbf1,#cffafe)', artemis:'linear-gradient(135deg,#ecfccb,#d1fae5,#ccfbf1)', moros:'linear-gradient(135deg,#e2e8f0,#ddd6fe,#c7d2fe)', eos:'linear-gradient(135deg,#fef3c7,#fed7aa,#fecaca)', charon:'linear-gradient(135deg,#d6d3d1,#e7e5e4,#f5f5f4)', thanatos:'linear-gradient(135deg,#fecdd3,#fed7aa,#fde68a)', medea:'linear-gradient(135deg,#fecdd3,#fbcfe8,#f5d0fe)', persephone:'linear-gradient(135deg,#e0e7ff,#ddd6fe,#f5d0fe)', nyx:'linear-gradient(135deg,#cbd5e1,#c7d2fe,#ddd6fe)', xinth:'linear-gradient(135deg,#fdba74,#fecaca,#fde68a)' })[id] || 'linear-gradient(135deg,#f5d0fe,#ddd6fe,#e0e7ff)'; }
+
+    function qualityInfo(score){
+      if(score >= 80) return {label:'Sólida', cls:'ok'};
+      if(score >= 60) return {label:'Encaminada', cls:'mid'};
+      if(score >= 40) return {label:'Inestable', cls:'warn'};
+      return {label:'Débil', cls:'bad'};
+    }
+
+    function compute(){
+      const weapon = getSelectedWeapon();
+      const aspect = getSelectedAspect();
+      const buildInfo = getBuildInfo();
+      const altBuilds = Object.entries(aspect.buildTypes)
+        .filter(([k]) => k !== state.buildType)
+        .map(([key, info]) => ({ key, info, overlap: info.gods.filter(g => state.pickedGods.includes(g)).length }))
+        .sort((a,b) => b.overlap - a.overlap);
+      const bestPivot = altBuilds[0];
+      const activePlanSupport = buildInfo.gods.filter(g => state.pickedGods.includes(g)).length;
+      const hasMainGod = state.pickedGods.includes(buildInfo.gods[0]);
+      const hasSecondGod = state.pickedGods.includes(buildInfo.gods[1]);
+      const canPivot = state.pickedGods.length >= 2 && bestPivot && bestPivot.overlap > activePlanSupport;
+
+      let score = 20;
+      if (hasMainGod) score += 25;
+      if (hasSecondGod) score += 15;
+      score += Math.min(activePlanSupport, 3) * 12;
+      score += Object.values(state.runState).filter(Boolean).length * 6;
+      if (buildInfo.duo.every(g => state.pickedGods.includes(g))) score += 10;
+      if (canPivot) score -= 8;
+      score = Math.max(0, Math.min(100, score));
+
+      const suggestedPath = {
+        firstGod: buildInfo.gods[0],
+        secondGod: buildInfo.gods[1],
+        duo: buildInfo.duo,
+        text: `Empieza intentando asegurar ${gods[buildInfo.gods[0]].name}. Luego busca ${gods[buildInfo.gods[1]].name} para completar la build y orientar tu run hacia la dupla ${gods[buildInfo.duo[0]].name} + ${gods[buildInfo.duo[1]].name}.`
+      };
+
+      const recommendationByGoal = {
+        beginner: aspect.topGods.slice(0,3),
+        bossing: [...new Set(['ares','aphrodite','hera',...aspect.topGods])].slice(0,4),
+        safe: [...new Set(['demeter','apollo','hermes',...aspect.topGods])].slice(0,4),
+        aggressive: [...new Set(['zeus','hestia','ares','aphrodite',...aspect.topGods])].slice(0,4),
+      };
+
+      let inRunAdvice = 'Aún no has marcado dioses tomados. Empieza por asegurar tu dios principal.';
+      if (state.pickedGods.length) {
+        if (canPivot && bestPivot) {
+          const label = bestPivot.key === 'attack' ? 'Attack' : bestPivot.key === 'special' ? 'Special' : bestPivot.key === 'cast' ? 'Cast' : 'Omega';
+          inRunAdvice = `Tu run sugiere un pivote: has tomado más piezas compatibles con ${label} que con tu plan actual.`;
+        } else if (state.pickedGods.includes(suggestedPath.firstGod) && !state.pickedGods.includes(suggestedPath.secondGod)) {
+          inRunAdvice = `Ya tienes ${gods[suggestedPath.firstGod].name}. Ahora prioriza ${gods[suggestedPath.secondGod].name}.`;
+        } else if (state.pickedGods.includes(suggestedPath.firstGod) && state.pickedGods.includes(suggestedPath.secondGod)) {
+          inRunAdvice = `Núcleo armado. Prioriza cerrar la dupla ${gods[suggestedPath.duo[0]].name} + ${gods[suggestedPath.duo[1]].name}.`;
+        } else {
+          inRunAdvice = `Ya tomaste ${state.pickedGods.map(g => gods[g].name).join(', ')}. Revisa si eso apoya tu plan de ${state.buildType}.`;
+        }
+      }
+
+      let pivotMessage = 'Todavía no hay suficiente información para sugerir un pivote.';
+      if (state.pickedGods.length) {
+        if (!canPivot || !bestPivot) {
+          pivotMessage = 'Tu plan actual sigue siendo el mejor camino.';
+        } else {
+          const label = bestPivot.key === 'attack' ? 'Attack' : bestPivot.key === 'special' ? 'Special' : bestPivot.key === 'cast' ? 'Cast' : 'Omega';
+          const pivotGods = bestPivot.info.gods.slice(0,3).map(g => gods[g].name).join(', ');
+          pivotMessage = `Conviene pivotear hacia ${label}. Prioriza ${pivotGods}.`;
+        }
+      }
+
+      const checkGuidance = !state.runState.mainBoon
+        ? 'Primero asegura un boon principal.'
+        : state.runState.mainBoon && !state.runState.secondGod
+        ? 'Ahora falta el dios complementario.'
+        : state.runState.mainBoon && state.runState.secondGod && !state.runState.duoPlan
+        ? 'Ya puedes orientar la run hacia una dupla.'
+        : state.runState.duoPlan && !state.runState.magickPlan
+        ? 'Revisa si tu Magick/Omega está resuelto.'
+        : state.runState.magickPlan && !state.runState.survivalPlan
+        ? 'Te queda revisar defensa y control.'
+        : 'Tu build está bastante bien resuelta.';
+
+      return { weapon, aspect, buildInfo, bestPivot, activePlanSupport, hasMainGod, hasSecondGod, canPivot, score, suggestedPath, visibleGods: recommendationByGoal[state.goal], inRunAdvice, pivotMessage, checkGuidance };
+    }
+
+    function stat(label, value){
+      return `<div class="stat"><label><span>${label}</span><span>${value}/100</span></label><div class="bar"><span style="width:${value}%"></span></div></div>`;
+    }
+
+    function togglePickedGod(key){
+      const idx = state.pickedGods.indexOf(key);
+      if(idx >= 0) state.pickedGods.splice(idx,1);
+      else {
+        state.pickedGods.push(key);
+        if(state.pickedGods.length > 3) state.pickedGods = state.pickedGods.slice(-3);
+      }
+      render();
+    }
+
+    function selectWeapon(id){
+      state.selectedWeaponId = id;
+      state.pickedGods = [];
+      state.runState = { mainBoon:false, secondGod:false, duoPlan:false, magickPlan:false, survivalPlan:false };
+      syncAspect();
+      render();
+    }
+
+    function setAspect(id){ state.selectedAspectId = id; state.pickedGods = []; render(); }
+    function setBuildType(type){ state.buildType = type; state.pickedGods = []; render(); }
+    function setGoal(goal){ state.goal = goal; render(); }
+    function toggleCheck(key){ state.runState[key] = !state.runState[key]; render(); }
+    function resetRun(){ state.goal='beginner'; state.buildType='attack'; state.pickedGods=[]; state.runState={ mainBoon:false, secondGod:false, duoPlan:false, magickPlan:false, survivalPlan:false }; render(); }
+
+    window.togglePickedGod = togglePickedGod;
+    window.selectWeapon = selectWeapon;
+    window.setAspect = setAspect;
+    window.setBuildType = setBuildType;
+    window.setGoal = setGoal;
+    window.toggleCheck = toggleCheck;
+
+    function renderWeapons(){
+      const items = weapons.filter(w => !state.search || `${w.name} ${w.category} ${w.playstyle}`.toLowerCase().includes(state.search));
+      weaponList.innerHTML = items.map(w => `
+        <button class="weapon-card ${w.id===state.selectedWeaponId?'active':''}" onclick="selectWeapon('${w.id}')">
+          <div class="weapon-icon">${w.icon}</div>
+          <div>
+            <div><strong>${w.name}</strong></div>
+            <div class="small">${w.category}</div>
+          </div>
+        </button>
+      `).join('');
+    }
+
+    function renderScreens(){
+      Object.entries(screens).forEach(([key, el]) => el.classList.toggle('hidden', key !== state.screen));
+      document.querySelectorAll('.sheet button').forEach(btn => btn.classList.toggle('active', btn.dataset.screen === state.screen));
+    }
+
+    function render(){
+      syncAspect();
+      renderWeapons();
+      renderScreens();
+      const { weapon, aspect, buildInfo, bestPivot, score, suggestedPath, visibleGods, inRunAdvice, pivotMessage, checkGuidance } = compute();
+      const q = qualityInfo(score);
+
+      screens.overview.innerHTML = `
+        <div class="card">
+          <div class="pill">${weapon.category}</div>
+          <h2 style="margin-top:10px; font-size:24px;">${weapon.name}</h2>
+          <p>${weapon.playstyle}</p>
+          <div class="hero-art">
+            <div class="main-art">${artEmoji(weapon.id)}</div>
+            <div class="aspect-art" style="background:${aspectGradient(aspect.id)};">${artEmoji(weapon.id)}</div>
+          </div>
+          <div class="stat-grid">
+            ${stat('Velocidad', weapon.speed)}
+            ${stat('Burst', weapon.burst)}
+            ${stat('Control', weapon.control)}
+            ${stat('Comodidad', weapon.comfort)}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Estado de la build</h2>
+          <div class="quality ${q.cls}" style="margin-top:10px;">
+            <div class="quality-top"><span>Calidad estimada</span><span>${q.label}</span></div>
+            <div style="font-size:30px;font-weight:800;margin-top:8px;">${score}/100</div>
+            <div class="bar" style="margin-top:10px;"><span style="width:${score}%"></span></div>
+          </div>
+          <div class="callout info" style="margin-top:12px;">${inRunAdvice}</div>
+        </div>
+
+        <div class="card">
+          <h2>Ruta rápida</h2>
+          <div class="callout soft">${suggestedPath.text}</div>
+          <div class="chips" style="margin-top:12px;">
+            ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Sin dioses marcados</span>'}
+          </div>
+        </div>
+      `;
+
+      screens.build.innerHTML = `
+        <div class="card">
+          <h2>Aspecto</h2>
+          <div class="aspect-scroller" style="margin-top:12px;">
+            ${weapon.aspects.map(a => `
+              <button class="aspect-card ${a.id===state.selectedAspectId?'active':''}" onclick="setAspect('${a.id}')">
+                <div class="aspect-preview" style="background:${aspectGradient(a.id)};">${artEmoji(weapon.id)}</div>
+                <div><strong>${a.name}</strong></div>
+                <div class="small">${a.style}</div>
+                <div class="small">${a.focus}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Tipo de build</h2>
+          <div class="build-grid" style="margin-top:12px;">
+            ${['attack','special','cast','omega'].map(type => {
+              const label = type === 'attack' ? 'Attack' : type === 'special' ? 'Special' : type === 'cast' ? 'Cast' : 'Omega';
+              return `<button class="build-btn ${state.buildType===type?'active':''}" onclick="setBuildType('${type}')"><strong>${label}</strong><div class="small">${type==='attack'?'Daño principal':type==='special'?'Plan de Special':type==='cast'?'Control y Cast':'Carga y Magick'}</div></button>`;
+            }).join('')}
+          </div>
+          <div class="quick-filters" style="margin-top:12px;">
+            ${[['beginner','Principiante'],['bossing','Jefes'],['safe','Seguro'],['aggressive','Agresiva']].map(([g,l]) => `<button class="btn ${state.goal===g?'active':''}" onclick="setGoal('${g}')">${l}</button>`).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Dioses prioritarios</h2>
+          <div class="god-scroller" style="margin-top:12px;">
+            ${visibleGods.map(g => `
+              <button class="god-card ${state.pickedGods.includes(g)?'active':''}" onclick="togglePickedGod('${g}')">
+                <div class="god-top">
+                  <div class="god-icon" style="background:${gods[g].color}">${gods[g].icon}</div>
+                  <div><strong>${gods[g].name}</strong><div class="small">${gods[g].type}</div></div>
+                </div>
+                <div class="small" style="margin-top:8px;">${gods[g].summary}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      screens.run.innerHTML = `
+        <div class="card">
+          <h2>Run en curso</h2>
+          <div class="chips" style="margin-top:10px;">
+            ${state.pickedGods.length ? state.pickedGods.map(g => `<span class="chip">${gods[g].name}</span>`).join('') : '<span class="chip">Sin dioses marcados</span>'}
+          </div>
+          <div class="callout ok" style="margin-top:12px;">${inRunAdvice}</div>
+          <div class="callout warn" style="margin-top:12px;">Evita especialmente: ${buildInfo.avoid.map(g => gods[g].name).join(', ')}.</div>
+        </div>
+
+        <div class="card">
+          <h2>Pivoteo</h2>
+          <div class="callout info">${pivotMessage}</div>
+          ${bestPivot ? `<div class="tag-row" style="margin-top:12px;"><span class="tag">Plan alternativo: ${bestPivot.key === 'attack' ? 'Attack' : bestPivot.key === 'special' ? 'Special' : bestPivot.key === 'cast' ? 'Cast' : 'Omega'}</span><span class="tag">Compatibilidad: ${bestPivot.overlap}</span></div>` : ''}
+        </div>
+
+        <div class="card">
+          <h2>Checklist</h2>
+          <div class="check-grid" style="margin-top:12px;">
+            ${[
+              ['mainBoon','Ya encontré mi boon principal'],
+              ['secondGod','Ya tengo mi segundo dios complementario'],
+              ['duoPlan','Ya sé qué dupla quiero perseguir'],
+              ['magickPlan','Mi Magick / Omega está resuelto'],
+              ['survivalPlan','Tengo control o supervivencia suficiente'],
+            ].map(([k,l]) => `<label class="check-item"><input type="checkbox" ${state.runState[k]?'checked':''} onchange="toggleCheck('${k}')" /><span>${l}</span></label>`).join('')}
+          </div>
+          <div class="callout soft" style="margin-top:12px;">${checkGuidance}</div>
+        </div>
+      `;
+
+      screens.guide.innerHTML = `
+        <div class="card">
+          <h2>Dupla objetivo</h2>
+          <div class="duo-grid" style="margin-top:12px;">
+            ${aspect.duoPairs.map(([a,b]) => `
+              <div class="duo">
+                <div class="mini"><strong>${gods[a].icon} ${gods[a].name}</strong><div class="small">${gods[a].type}</div></div>
+                <div class="small">+</div>
+                <div class="mini"><strong>${gods[b].icon} ${gods[b].name}</strong><div class="small">${gods[b].type}</div></div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="callout info" style="margin-top:12px;">Dupla sugerida para este plan: ${gods[buildInfo.duo[0]].name} + ${gods[buildInfo.duo[1]].name}</div>
+        </div>
+
+        <div class="card">
+          <h2>Elementos sugeridos</h2>
+          <div class="note-grid" style="margin-top:12px;">
+            ${aspect.elements.map(key => `<div class="line-card"><strong>${elements[key].name}</strong><div class="small" style="margin-top:6px;">${elements[key].hint}</div></div>`).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Martillos y keepsakes</h2>
+          <div class="note-grid" style="margin-top:12px;">
+            ${[...hammerAdviceByStyle[weapon.coreStyle], ...buildInfo.hammers].slice(0,4).map(t => `<div class="line-card">${t}</div>`).join('')}
+            ${keepsakes[state.goal].map(t => `<div class="line-card">${t}</div>`).join('')}
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Priorizar / Evitar</h2>
+          <div class="callout ok">${aspect.recommendedBoons.map(x => `• ${x}`).join('<br>')}</div>
+          <div class="callout warn" style="margin-top:12px;">${aspect.avoidBoons.map(x => `• ${x}`).join('<br>')}</div>
+        </div>
+      `;
+    }
+
+    if ('serviceWorker' in navigator) {
+      const swCode = `self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => self.clients.claim());`;
+      const blob = new Blob([swCode], { type: 'text/javascript' });
+      const swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    }
+
+    render();
+  </script>
+</body>
+</html>
