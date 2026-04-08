@@ -21,10 +21,12 @@
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      margin: 0; font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
       background: radial-gradient(circle at top, rgba(139,92,246,.32), transparent 30%), linear-gradient(180deg, #090d19 0%, #121729 100%);
-      min-height: 100vh; padding-bottom: 88px;
+      min-height: 100vh;
+      padding-bottom: 88px;
     }
     .app { width: min(100%, 560px); margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 14px calc(22px + env(safe-area-inset-bottom)); }
     .hero, .card { border: 1px solid var(--line); background: var(--panel); backdrop-filter: blur(12px); border-radius: var(--radius); box-shadow: var(--shadow); }
@@ -36,7 +38,8 @@
     p { color: var(--muted); line-height: 1.55; margin: 0; }
     .small { font-size: 13px; color: var(--muted); }
     .top-actions, .chips, .action-row, .quick-filters { display: flex; gap: 8px; flex-wrap: wrap; }
-    button, input { font: inherit; } button { border: 0; cursor: pointer; color: inherit; }
+    button, input { font: inherit; }
+    button { border: 0; cursor: pointer; color: inherit; }
     .btn { min-height: 44px; padding: 11px 14px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid var(--line); color: var(--text); transition: transform .15s ease; }
     .btn:active { transform: scale(.98); }
     .btn.primary, .btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; }
@@ -57,7 +60,8 @@
     .stat-grid, .build-grid, .choice-grid, .note-grid, .check-grid { display: grid; gap: 10px; }
     .stat-grid { grid-template-columns: repeat(2, 1fr); margin-top: 14px; }
     .build-grid { grid-template-columns: repeat(2, 1fr); }
-    .choice-grid, .note-grid, .check-grid { grid-template-columns: 1fr; }
+    .choice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .note-grid, .check-grid { grid-template-columns: 1fr; }
     .stat label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
     .bar { height: 8px; border-radius: 999px; background: rgba(255,255,255,.08); overflow: hidden; }
     .bar > span { height: 100%; display: block; background: linear-gradient(90deg, #818cf8, #c084fc); }
@@ -90,9 +94,9 @@
   <div class="app">
     <div class="summary-strip" id="summaryStrip"></div>
     <div class="hero">
-      <div class="pill">📱 Hades II Mobile Companion v5</div>
-      <h1>Run simple, pero con prioridades mejores</h1>
-      <p>La recomendación ahora compara todo lo que viste en la estancia y puede preferir martillo, granada o puerta antes que un dios alternativo.</p>
+      <div class="pill">📱 Hades II Mobile Companion v6</div>
+      <h1>Más compacto y con prioridades más reales</h1>
+      <p>La recomendación ahora sube mucho el valor de Martillo, Granada y recursos cuando tu núcleo ya está armado.</p>
       <div class="top-actions" style="margin-top:12px;">
         <button class="btn primary" id="quickStartBtn">Build inicial</button>
         <button class="btn" id="resetBtn">Reiniciar</button>
@@ -116,157 +120,78 @@
   </div>
 
   <script>
-    const gods = {
-      zeus:{name:'Zeus',icon:'⚡',type:'Golpes rápidos',summary:'Ideal para armas o patrones con muchos impactos.',color:'linear-gradient(135deg,#fde68a,#fbbf24)'},
-      poseidon:{name:'Poseidón',icon:'🌊',type:'Control y limpieza',summary:'Muy cómodo para limpiar salas.',color:'linear-gradient(135deg,#bae6fd,#67e8f9)'},
-      hestia:{name:'Hestia',icon:'🔥',type:'Daño constante',summary:'Muy buena para daño sostenido.',color:'linear-gradient(135deg,#fdba74,#f87171)'},
-      hephaestus:{name:'Hefesto',icon:'🔨',type:'Daño extra',summary:'Funciona bien con armas rápidas.',color:'linear-gradient(135deg,#d6d3d1,#a8a29e)'},
-      aphrodite:{name:'Afrodita',icon:'💗',type:'Golpes fuertes',summary:'Excelente para daño alto por impacto.',color:'linear-gradient(135deg,#fbcfe8,#fda4af)'},
-      demeter:{name:'Deméter',icon:'❄️',type:'Control y seguridad',summary:'Ideal para armas lentas.',color:'linear-gradient(135deg,#dbeafe,#c4b5fd)'},
-      apollo:{name:'Apolo',icon:'☀️',type:'Espacio y consistencia',summary:'Muy bueno para limpieza y alcance.',color:'linear-gradient(135deg,#fef3c7,#fde68a)'},
-      hera:{name:'Hera',icon:'👑',type:'Builds planificadas',summary:'Gran techo de daño.',color:'linear-gradient(135deg,#ddd6fe,#f5d0fe)'},
-      ares:{name:'Ares',icon:'🗡️',type:'Agresión',summary:'Muy bueno para jefes.',color:'linear-gradient(135deg,#fecdd3,#fdba74)'},
-      hermes:{name:'Hermes',icon:'💨',type:'Fluidez',summary:'Mejora movilidad y ritmo.',color:'linear-gradient(135deg,#d1fae5,#99f6e4)'},
-      selene:{name:'Selene',icon:'🌙',type:'Hex y magia',summary:'Brilla con builds de magia.',color:'linear-gradient(135deg,#e0e7ff,#e2e8f0)'}
-    };
-    const rewards = {
-      dios:{name:'Dios',icon:'✨',desc:'Más bendiciones para fortalecer tu build.'},
-      martillo:{name:'Martillo de Dédalo',icon:'🔨',desc:'Mejora fuerte del arma. Muy valioso.'},
-      granada:{name:'Granada',icon:'🍎',desc:'Mejora una bendición que ya tienes.'},
-      corazon:{name:'Corazón',icon:'❤️',desc:'Más vida máxima.'},
-      mana:{name:'Magia',icon:'🔵',desc:'Más apoyo para omega y hexes.'},
-      monedas:{name:'Monedas',icon:'🪙',desc:'Sirven para comprar mejoras.'},
-      caos:{name:'Caos',icon:'🌀',desc:'Riesgo a corto plazo con recompensa fuerte.'},
-      selene:{name:'Selene',icon:'🌙',desc:'Opciones ligadas a hexes y magia.'}
-    };
-    const rewardKeys = Object.keys(rewards);
-    const allGodKeys = ['zeus','poseidon','hestia','hephaestus','aphrodite','demeter','apollo','hera','ares','hermes','selene'];
-    const weapons = [
-      {id:'axe',icon:'🪓',name:'Hacha de Piedra Lunar',category:'Pesada / golpe fuerte',playstyle:'Lenta, poderosa, castiga ventanas con mucha fuerza.',speed:30,burst:96,control:72,comfort:57,coreStyle:'heavy',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Pesada clásica',focus:'Golpes fuertes',topGods:['aphrodite','demeter','apollo','hera','ares'],buildTypes:{attack:{gods:['aphrodite','demeter','apollo'],duo:['aphrodite','demeter'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['hera','apollo'],avoid:['poseidon']},cast:{gods:['apollo','demeter'],duo:['demeter','apollo'],avoid:['hestia']},omega:{gods:['hera','demeter','selene'],duo:['hera','demeter'],avoid:['zeus']}}},{id:'thanatos',name:'Aspecto de Tánatos',style:'Ofensiva máxima',focus:'Burst y jefe',topGods:['ares','aphrodite','hera','demeter'],buildTypes:{attack:{gods:['ares','aphrodite','demeter'],duo:['ares','aphrodite'],avoid:['zeus']},special:{gods:['hera','apollo'],duo:['ares','hera'],avoid:['poseidon']},cast:{gods:['demeter','apollo'],duo:['demeter','apollo'],avoid:['hestia']},omega:{gods:['hera','selene'],duo:['ares','hera'],avoid:['poseidon']}}}]},
-      {id:'blades',icon:'🗡️',name:'Hojas Hermanas',category:'Rápida / agresiva',playstyle:'Combate cercano veloz.',speed:95,burst:78,control:48,comfort:52,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Rapidez pura',focus:'Ataque rápido',topGods:['zeus','poseidon','hestia','hephaestus','hermes'],buildTypes:{attack:{gods:['zeus','poseidon','hestia'],duo:['zeus','poseidon'],avoid:['aphrodite']},special:{gods:['hestia','poseidon','hephaestus'],duo:['zeus','hestia'],avoid:['hera']},cast:{gods:['demeter','apollo'],duo:['aphrodite','demeter'],avoid:['ares']},omega:{gods:['demeter','selene'],duo:['aphrodite','demeter'],avoid:['poseidon']}}}]},
-      {id:'staff',icon:'🪄',name:'Báculo de la Bruja',category:'Técnica / híbrida',playstyle:'Segura, flexible, buena para empezar.',speed:55,burst:60,control:78,comfort:88,coreStyle:'cast',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Equilibrado',focus:'Ataque / control básico',topGods:['apollo','demeter','hera','hermes'],buildTypes:{attack:{gods:['apollo','demeter','aphrodite'],duo:['apollo','demeter'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['apollo','hera'],avoid:['hephaestus']},cast:{gods:['apollo','demeter','selene'],duo:['apollo','demeter'],avoid:['ares']},omega:{gods:['demeter','hera','selene'],duo:['hera','demeter'],avoid:['poseidon']}}}]},
-      {id:'skull',icon:'💀',name:'Cráneo Argénteo',category:'Técnica / burst',playstyle:'Munición y daño muy alto.',speed:52,burst:88,control:72,comfort:50,coreStyle:'cast',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Equilibrado',focus:'Burst base',topGods:['hera','apollo','aphrodite','demeter'],buildTypes:{attack:{gods:['hera','aphrodite','apollo'],duo:['hera','aphrodite'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['hera','apollo'],avoid:['poseidon']},cast:{gods:['apollo','demeter','selene'],duo:['demeter','apollo'],avoid:['hestia']},omega:{gods:['hera','selene','demeter'],duo:['hera','demeter'],avoid:['zeus']}}}]},
-      {id:'coat',icon:'🧥',name:'Manto Negro',category:'Híbrida / dinámica',playstyle:'Combina combate cercano y presión a distancia.',speed:84,burst:76,control:66,comfort:64,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Híbrido base',focus:'Ritmo y versatilidad',topGods:['zeus','hestia','poseidon','aphrodite','demeter'],buildTypes:{attack:{gods:['zeus','hestia','poseidon'],duo:['zeus','hestia'],avoid:['hera']},special:{gods:['poseidon','hestia','hephaestus'],duo:['zeus','poseidon'],avoid:['ares']},cast:{gods:['apollo','demeter'],duo:['aphrodite','demeter'],avoid:['zeus']},omega:{gods:['demeter','selene','hera'],duo:['aphrodite','demeter'],avoid:['poseidon']}}}]},
-      {id:'flames',icon:'🔥',name:'Llamas Umbrales',category:'Rápida / técnica',playstyle:'Muchos impactos y posicionamiento.',speed:92,burst:58,control:70,comfort:60,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Volumen de impactos',focus:'Ataque y presión',topGods:['zeus','hestia','poseidon','hephaestus'],buildTypes:{attack:{gods:['zeus','hestia','poseidon'],duo:['zeus','hestia'],avoid:['aphrodite']},special:{gods:['hestia','hephaestus','poseidon'],duo:['zeus','poseidon'],avoid:['hera']},cast:{gods:['apollo','demeter'],duo:['demeter','apollo'],avoid:['ares']},omega:{gods:['demeter','selene'],duo:['demeter','apollo'],avoid:['poseidon']}}}]}
-    ];
+    const gods={zeus:{name:'Zeus',icon:'⚡',type:'Golpes rápidos',color:'linear-gradient(135deg,#fde68a,#fbbf24)'},poseidon:{name:'Poseidón',icon:'🌊',type:'Control y limpieza',color:'linear-gradient(135deg,#bae6fd,#67e8f9)'},hestia:{name:'Hestia',icon:'🔥',type:'Daño constante',color:'linear-gradient(135deg,#fdba74,#f87171)'},hephaestus:{name:'Hefesto',icon:'🔨',type:'Daño extra',color:'linear-gradient(135deg,#d6d3d1,#a8a29e)'},aphrodite:{name:'Afrodita',icon:'💗',type:'Golpes fuertes',color:'linear-gradient(135deg,#fbcfe8,#fda4af)'},demeter:{name:'Deméter',icon:'❄️',type:'Control y seguridad',color:'linear-gradient(135deg,#dbeafe,#c4b5fd)'},apollo:{name:'Apolo',icon:'☀️',type:'Espacio y consistencia',color:'linear-gradient(135deg,#fef3c7,#fde68a)'},hera:{name:'Hera',icon:'👑',type:'Builds planificadas',color:'linear-gradient(135deg,#ddd6fe,#f5d0fe)'},ares:{name:'Ares',icon:'🗡️',type:'Agresión',color:'linear-gradient(135deg,#fecdd3,#fdba74)'},hermes:{name:'Hermes',icon:'💨',type:'Fluidez',color:'linear-gradient(135deg,#d1fae5,#99f6e4)'},selene:{name:'Selene',icon:'🌙',type:'Hex y magia',color:'linear-gradient(135deg,#e0e7ff,#e2e8f0)'}};
+    const rewards={dios:{name:'Dios',icon:'✨',desc:'Más bendiciones para fortalecer tu build.'},martillo:{name:'Martillo de Dédalo',icon:'🔨',desc:'Mejora fuerte del arma. Muy valioso.'},granada:{name:'Granada',icon:'🍎',desc:'Mejora una bendición que ya tienes.'},corazon:{name:'Corazón',icon:'❤️',desc:'Más vida máxima.'},mana:{name:'Magia',icon:'🔵',desc:'Más apoyo para omega y hexes.'},monedas:{name:'Monedas',icon:'🪙',desc:'Sirven para comprar mejoras.'},caos:{name:'Caos',icon:'🌀',desc:'Riesgo a corto plazo con recompensa fuerte.'},selene:{name:'Selene',icon:'🌙',desc:'Opciones ligadas a hexes y magia.'}};
+    const rewardKeys=Object.keys(rewards);
+    const allGodKeys=['zeus','poseidon','hestia','hephaestus','aphrodite','demeter','apollo','hera','ares','hermes','selene'];
+    const weapons=[{id:'axe',icon:'🪓',name:'Hacha de Piedra Lunar',category:'Pesada / golpe fuerte',playstyle:'Lenta, poderosa, castiga ventanas con mucha fuerza.',speed:30,burst:96,control:72,comfort:57,coreStyle:'heavy',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Pesada clásica',focus:'Golpes fuertes',topGods:['aphrodite','demeter','apollo','hera','ares'],buildTypes:{attack:{gods:['aphrodite','demeter','apollo'],duo:['aphrodite','demeter'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['hera','apollo'],avoid:['poseidon']},cast:{gods:['apollo','demeter'],duo:['demeter','apollo'],avoid:['hestia']},omega:{gods:['hera','demeter','selene'],duo:['hera','demeter'],avoid:['zeus']}}}]},{id:'blades',icon:'🗡️',name:'Hojas Hermanas',category:'Rápida / agresiva',playstyle:'Combate cercano veloz.',speed:95,burst:78,control:48,comfort:52,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Rapidez pura',focus:'Ataque rápido',topGods:['zeus','poseidon','hestia','hephaestus','hermes'],buildTypes:{attack:{gods:['zeus','poseidon','hestia'],duo:['zeus','poseidon'],avoid:['aphrodite']},special:{gods:['hestia','poseidon','hephaestus'],duo:['zeus','hestia'],avoid:['hera']},cast:{gods:['demeter','apollo'],duo:['aphrodite','demeter'],avoid:['ares']},omega:{gods:['demeter','selene'],duo:['aphrodite','demeter'],avoid:['poseidon']}}}]},{id:'staff',icon:'🪄',name:'Báculo de la Bruja',category:'Técnica / híbrida',playstyle:'Segura, flexible, buena para empezar.',speed:55,burst:60,control:78,comfort:88,coreStyle:'cast',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Equilibrado',focus:'Ataque / control básico',topGods:['apollo','demeter','hera','hermes'],buildTypes:{attack:{gods:['apollo','demeter','aphrodite'],duo:['apollo','demeter'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['apollo','hera'],avoid:['hephaestus']},cast:{gods:['apollo','demeter','selene'],duo:['apollo','demeter'],avoid:['ares']},omega:{gods:['demeter','hera','selene'],duo:['hera','demeter'],avoid:['poseidon']}}}]},{id:'skull',icon:'💀',name:'Cráneo Argénteo',category:'Técnica / burst',playstyle:'Munición y daño muy alto.',speed:52,burst:88,control:72,comfort:50,coreStyle:'cast',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Equilibrado',focus:'Burst base',topGods:['hera','apollo','aphrodite','demeter'],buildTypes:{attack:{gods:['hera','aphrodite','apollo'],duo:['hera','aphrodite'],avoid:['zeus']},special:{gods:['apollo','hera','demeter'],duo:['hera','apollo'],avoid:['poseidon']},cast:{gods:['apollo','demeter','selene'],duo:['demeter','apollo'],avoid:['hestia']},omega:{gods:['hera','selene','demeter'],duo:['hera','demeter'],avoid:['zeus']}}}]},{id:'coat',icon:'🧥',name:'Manto Negro',category:'Híbrida / dinámica',playstyle:'Combina combate cercano y presión a distancia.',speed:84,burst:76,control:66,comfort:64,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Híbrido base',focus:'Ritmo y versatilidad',topGods:['zeus','hestia','poseidon','aphrodite','demeter'],buildTypes:{attack:{gods:['zeus','hestia','poseidon'],duo:['zeus','hestia'],avoid:['hera']},special:{gods:['poseidon','hestia','hephaestus'],duo:['zeus','poseidon'],avoid:['ares']},cast:{gods:['apollo','demeter'],duo:['aphrodite','demeter'],avoid:['zeus']},omega:{gods:['demeter','selene','hera'],duo:['aphrodite','demeter'],avoid:['poseidon']}}}]},{id:'flames',icon:'🔥',name:'Llamas Umbrales',category:'Rápida / técnica',playstyle:'Muchos impactos y posicionamiento.',speed:92,burst:58,control:70,comfort:60,coreStyle:'rapid',aspects:[{id:'melinoe',name:'Aspecto de Melínoe',style:'Volumen de impactos',focus:'Ataque y presión',topGods:['zeus','hestia','poseidon','hephaestus'],buildTypes:{attack:{gods:['zeus','hestia','poseidon'],duo:['zeus','hestia'],avoid:['aphrodite']},special:{gods:['hestia','hephaestus','poseidon'],duo:['zeus','poseidon'],avoid:['hera']},cast:{gods:['apollo','demeter'],duo:['demeter','apollo'],avoid:['ares']},omega:{gods:['demeter','selene'],duo:['demeter','apollo'],avoid:['poseidon']}}}]}];
 
-    const state = { selectedWeaponId:'axe', selectedAspectId:'melinoe', buildType:'attack', goal:'beginner', pickedGods:[], seenOffers:[], seenDoors:[], search:'', runState:{mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false}, screen:'overview' };
-    const summaryStrip = document.getElementById('summaryStrip');
-    const searchInput = document.getElementById('searchInput');
-    const weaponList = document.getElementById('weaponList');
-    const screens = { overview:document.getElementById('screen-overview'), build:document.getElementById('screen-build'), run:document.getElementById('screen-run'), guide:document.getElementById('screen-guide') };
-    document.getElementById('quickStartBtn').onclick = () => { state.selectedWeaponId='axe'; state.selectedAspectId='melinoe'; state.buildType='attack'; resetRun(false); };
-    document.getElementById('resetBtn').onclick = () => resetRun(true);
-    searchInput.addEventListener('input', e => { state.search = e.target.value.toLowerCase().trim(); renderWeapons(); });
-    document.querySelectorAll('.sheet button').forEach(btn => btn.addEventListener('click', () => { state.screen = btn.dataset.screen; renderScreens(); }));
+    const state={selectedWeaponId:'axe',selectedAspectId:'melinoe',buildType:'attack',goal:'beginner',pickedGods:[],seenOffers:[],seenDoors:[],search:'',runState:{mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false},screen:'overview'};
+    const summaryStrip=document.getElementById('summaryStrip');
+    const searchInput=document.getElementById('searchInput');
+    const weaponList=document.getElementById('weaponList');
+    const screens={overview:document.getElementById('screen-overview'),build:document.getElementById('screen-build'),run:document.getElementById('screen-run'),guide:document.getElementById('screen-guide')};
+    document.getElementById('quickStartBtn').onclick=()=>{state.selectedWeaponId='axe';state.selectedAspectId='melinoe';state.buildType='attack';resetRun(false);};
+    document.getElementById('resetBtn').onclick=()=>resetRun(true);
+    searchInput.addEventListener('input',e=>{state.search=e.target.value.toLowerCase().trim();renderWeapons();});
+    document.querySelectorAll('.sheet button').forEach(btn=>btn.addEventListener('click',()=>{state.screen=btn.dataset.screen;renderScreens();}));
+    function getSelectedWeapon(){return weapons.find(w=>w.id===state.selectedWeaponId)||weapons[0];}
+    function syncAspect(){const w=getSelectedWeapon();if(!w.aspects.find(a=>a.id===state.selectedAspectId))state.selectedAspectId=w.aspects[0].id;}
+    function getSelectedAspect(){const w=getSelectedWeapon();return w.aspects.find(a=>a.id===state.selectedAspectId)||w.aspects[0];}
+    function getBuildInfo(){return getSelectedAspect().buildTypes[state.buildType];}
+    function qualityInfo(score){if(score>=80)return{label:'Sólida',cls:'ok'};if(score>=60)return{label:'Encaminada',cls:'mid'};if(score>=40)return{label:'Inestable',cls:'warn'};return{label:'Débil',cls:'bad'};}
+    function artEmoji(id){return({staff:'🪄',blades:'🗡️',flames:'🔥',axe:'🪓',skull:'💀',coat:'🧥'})[id]||'✨';}
+    function aspectGradient(){return 'linear-gradient(135deg,#f5d0fe,#ddd6fe,#e0e7ff)';}
+    function togglePickedGod(key){const i=state.pickedGods.indexOf(key);if(i>=0)state.pickedGods.splice(i,1);else state.pickedGods.push(key);state.seenOffers=state.seenOffers.filter(g=>g!==key);render();}
+    function toggleOffer(key){const i=state.seenOffers.indexOf(key);if(i>=0)state.seenOffers.splice(i,1);else state.seenOffers.push(key);render();}
+    function toggleDoor(key){const i=state.seenDoors.indexOf(key);if(i>=0)state.seenDoors.splice(i,1);else state.seenDoors.push(key);render();}
+    function selectWeapon(id){state.selectedWeaponId=id;state.pickedGods=[];state.seenOffers=[];state.seenDoors=[];state.runState={mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false};syncAspect();render();}
+    function setAspect(id){state.selectedAspectId=id;state.pickedGods=[];state.seenOffers=[];state.seenDoors=[];render();}
+    function setBuildType(type){state.buildType=type;state.pickedGods=[];state.seenOffers=[];state.seenDoors=[];render();}
+    function toggleCheck(key){state.runState[key]=!state.runState[key];render();}
+    function resetRun(keepWeapon=true){if(!keepWeapon){state.goal='beginner';}state.pickedGods=[];state.seenOffers=[];state.seenDoors=[];state.runState={mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false};render();}
+    function nextRoom(){state.seenOffers=[];state.seenDoors=[];render();}
+    function clearOffers(){state.seenOffers=[];render();}
+    function clearDoors(){state.seenDoors=[];render();}
 
-    function getSelectedWeapon(){ return weapons.find(w => w.id===state.selectedWeaponId) || weapons[0]; }
-    function syncAspect(){ const w=getSelectedWeapon(); if(!w.aspects.find(a=>a.id===state.selectedAspectId)) state.selectedAspectId=w.aspects[0].id; }
-    function getSelectedAspect(){ const w=getSelectedWeapon(); return w.aspects.find(a=>a.id===state.selectedAspectId) || w.aspects[0]; }
-    function getBuildInfo(){ return getSelectedAspect().buildTypes[state.buildType]; }
-    function qualityInfo(score){ if(score>=80) return {label:'Sólida',cls:'ok'}; if(score>=60) return {label:'Encaminada',cls:'mid'}; if(score>=40) return {label:'Inestable',cls:'warn'}; return {label:'Débil',cls:'bad'}; }
-    function artEmoji(id){ return ({staff:'🪄',blades:'🗡️',flames:'🔥',axe:'🪓',skull:'💀',coat:'🧥'})[id] || '✨'; }
-    function aspectGradient(id){ return ({melinoe:'linear-gradient(135deg,#f5d0fe,#ddd6fe,#e0e7ff)',thanatos:'linear-gradient(135deg,#fecdd3,#fed7aa,#fde68a)'})[id] || 'linear-gradient(135deg,#f5d0fe,#ddd6fe,#e0e7ff)'; }
-    function togglePickedGod(key){ const i=state.pickedGods.indexOf(key); if(i>=0) state.pickedGods.splice(i,1); else state.pickedGods.push(key); state.seenOffers=state.seenOffers.filter(g=>g!==key); render(); }
-    function toggleOffer(key){ const i=state.seenOffers.indexOf(key); if(i>=0) state.seenOffers.splice(i,1); else state.seenOffers.push(key); render(); }
-    function toggleDoor(key){ const i=state.seenDoors.indexOf(key); if(i>=0) state.seenDoors.splice(i,1); else state.seenDoors.push(key); render(); }
-    function selectWeapon(id){ state.selectedWeaponId=id; state.pickedGods=[]; state.seenOffers=[]; state.seenDoors=[]; state.runState={mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false}; syncAspect(); render(); }
-    function setAspect(id){ state.selectedAspectId=id; state.pickedGods=[]; state.seenOffers=[]; state.seenDoors=[]; render(); }
-    function setBuildType(type){ state.buildType=type; state.pickedGods=[]; state.seenOffers=[]; state.seenDoors=[]; render(); }
-    function setGoal(goal){ state.goal=goal; render(); }
-    function toggleCheck(key){ state.runState[key]=!state.runState[key]; render(); }
-    function resetRun(keepWeapon=true){ if(!keepWeapon){ state.goal='beginner'; } state.pickedGods=[]; state.seenOffers=[]; state.seenDoors=[]; state.runState={mainBoon:false,secondGod:false,duoPlan:false,magickPlan:false,survivalPlan:false}; render(); }
-    function nextRoom(){ state.seenOffers=[]; state.seenDoors=[]; render(); }
-    function clearOffers(){ state.seenOffers=[]; render(); }
-    function clearDoors(){ state.seenDoors=[]; render(); }
-
-    function godPriorityScore(godKey, buildInfo, aspect){
-      let score=0;
-      if(buildInfo.gods[0]===godKey) score+=100;
-      if(buildInfo.gods[1]===godKey) score+=80;
-      if(buildInfo.gods[2]===godKey) score+=55;
-      if(buildInfo.duo.includes(godKey)) score+=20;
-      if(aspect.topGods.includes(godKey)) score+=10;
-      if(state.pickedGods.includes(godKey)) score-=60;
-      if(buildInfo.avoid.includes(godKey)) score-=80;
-      const completesDuo = buildInfo.duo.includes(godKey) && state.pickedGods.some(g => buildInfo.duo.includes(g));
-      if(completesDuo) score += 55;
-      if(state.pickedGods.length >= 2 && !completesDuo && godKey !== buildInfo.gods[0] && godKey !== buildInfo.gods[1]) score -= 20;
-      return score;
-    }
-
-    function doorPriorityScore(doorKey, buildInfo, weapon){
-      let score=0;
-      const godsTaken=state.pickedGods.length;
-      const duoIncomplete=!buildInfo.duo.every(g=>state.pickedGods.includes(g));
-      if(doorKey==='martillo') score += godsTaken >= 1 ? 96 : 84;
-      if(doorKey==='dios') score += !state.runState.mainBoon ? 92 : duoIncomplete ? 58 : 42;
-      if(doorKey==='granada') score += godsTaken >= 2 ? 64 : godsTaken >= 1 ? 48 : 18;
-      if(doorKey==='mana') score += (state.buildType==='omega' || state.buildType==='cast' || !state.runState.magickPlan) ? 72 : 22;
-      if(doorKey==='corazon') score += !state.runState.survivalPlan ? 60 : 28;
-      if(doorKey==='monedas') score += 30;
-      if(doorKey==='caos') score += godsTaken >= 1 ? 56 : 16;
-      if(doorKey==='selene') score += (state.buildType==='omega' || state.buildType==='cast') ? 70 : 24;
-      if(weapon.coreStyle==='heavy' && doorKey==='martillo') score += 14;
-      if(weapon.coreStyle==='rapid' && doorKey==='granada') score += 10;
-      if(weapon.coreStyle==='cast' && (doorKey==='mana' || doorKey==='selene')) score += 12;
-      return score;
-    }
+    function godPriorityScore(godKey, buildInfo, aspect){let score=0;if(buildInfo.gods[0]===godKey)score+=100;if(buildInfo.gods[1]===godKey)score+=80;if(buildInfo.gods[2]===godKey)score+=55;if(buildInfo.duo.includes(godKey))score+=20;if(aspect.topGods.includes(godKey))score+=10;if(state.pickedGods.includes(godKey))score-=60;if(buildInfo.avoid.includes(godKey))score-=80;const completesDuo=buildInfo.duo.includes(godKey)&&state.pickedGods.some(g=>buildInfo.duo.includes(g));if(completesDuo)score+=55;if(state.pickedGods.length>=2&&!completesDuo&&godKey!==buildInfo.gods[0]&&godKey!==buildInfo.gods[1])score-=20;return score;}
+    function doorPriorityScore(doorKey, buildInfo, weapon){let score=0;const godsTaken=state.pickedGods.length;const duoIncomplete=!buildInfo.duo.every(g=>state.pickedGods.includes(g));const needsMagic=!state.runState.magickPlan;const needsSurvival=!state.runState.survivalPlan;const nucleusArmed=state.pickedGods.includes(buildInfo.gods[0])&&state.pickedGods.includes(buildInfo.gods[1]);if(doorKey==='martillo')score+=godsTaken>=1?100:84;if(doorKey==='dios')score+=!state.runState.mainBoon?92:duoIncomplete?58:34;if(doorKey==='granada')score+=nucleusArmed?78:godsTaken>=2?66:godsTaken>=1?48:18;if(doorKey==='mana')score+=(state.buildType==='omega'||state.buildType==='cast'||needsMagic)?78:22;if(doorKey==='corazon')score+=needsSurvival?68:28;if(doorKey==='monedas')score+=30;if(doorKey==='caos')score+=godsTaken>=1?58:16;if(doorKey==='selene')score+=(state.buildType==='omega'||state.buildType==='cast')?76:24;if(weapon.coreStyle==='heavy'&&doorKey==='martillo')score+=16;if(weapon.coreStyle==='rapid'&&doorKey==='granada')score+=12;if(weapon.coreStyle==='cast'&&(doorKey==='mana'||doorKey==='selene'))score+=14;return score;}
 
     function compute(){
-      const weapon=getSelectedWeapon();
-      const aspect=getSelectedAspect();
-      const buildInfo=getBuildInfo();
+      const weapon=getSelectedWeapon(), aspect=getSelectedAspect(), buildInfo=getBuildInfo();
+      const hasMain=state.pickedGods.includes(buildInfo.gods[0]);
+      const hasSecond=state.pickedGods.includes(buildInfo.gods[1]);
+      const duoComplete=buildInfo.duo.every(g=>state.pickedGods.includes(g));
       const activePlanSupport=buildInfo.gods.filter(g=>state.pickedGods.includes(g)).length;
-      let score=20 + Math.min(activePlanSupport,3)*12 + Object.values(state.runState).filter(Boolean).length*6;
-      if(state.pickedGods.includes(buildInfo.gods[0])) score += 25;
-      if(state.pickedGods.includes(buildInfo.gods[1])) score += 15;
-      if(buildInfo.duo.every(g=>state.pickedGods.includes(g))) score += 10;
-      score=Math.max(0,Math.min(100,score));
-      const nextRecommendedGod = allGodKeys.map(key=>({key,score:godPriorityScore(key,buildInfo,aspect)})).sort((a,b)=>b.score-a.score).find(x=>!state.pickedGods.includes(x.key));
-      const offeredRanked = state.seenOffers.map(key=>({key,score:godPriorityScore(key,buildInfo,aspect)})).sort((a,b)=>b.score-a.score);
-      const doorsRanked = state.seenDoors.map(key=>({key,score:doorPriorityScore(key,buildInfo,weapon)})).sort((a,b)=>b.score-a.score);
-      const recommendedOffer = offeredRanked[0]?.key || null;
-      const recommendedDoor = doorsRanked[0]?.key || null;
-      let primaryChoice = null;
-      const bestGod = offeredRanked[0];
-      const bestDoor = doorsRanked[0];
-      if(bestGod || bestDoor){
-        if((bestDoor?.score ?? -999) > (bestGod?.score ?? -999)) primaryChoice = {type:'puerta',key:bestDoor.key};
-        else primaryChoice = {type:'dios',key:bestGod.key};
-      }
-      const pivotMessage = state.pickedGods.length >=2 && !buildInfo.duo.every(g=>state.pickedGods.includes(g)) ? 'Si sigues recibiendo piezas fuera de tu núcleo, podrías cambiar de plan.' : 'Tu plan actual sigue viéndose bien.';
-      const checkGuidance = !state.runState.mainBoon ? 'Primero asegura una bendición principal.' : !state.runState.secondGod ? 'Ahora falta el dios complementario.' : !state.runState.duoPlan ? 'Ya puedes orientar la run hacia una dupla.' : !state.runState.magickPlan ? 'Revisa si tu magia/omega está resuelta.' : !state.runState.survivalPlan ? 'Te queda revisar defensa y control.' : 'Tu build está bastante bien resuelta.';
-      return {weapon,aspect,buildInfo,score,nextRecommendedGod,recommendedOffer,recommendedDoor,primaryChoice,offeredRanked,doorsRanked,pivotMessage,checkGuidance};
+      let score=20+Math.min(activePlanSupport,3)*12+Object.values(state.runState).filter(Boolean).length*6;if(hasMain)score+=25;if(hasSecond)score+=15;if(duoComplete)score+=10;score=Math.max(0,Math.min(100,score));
+      const nextRecommendedGod=allGodKeys.map(key=>({key,score:godPriorityScore(key,buildInfo,aspect)})).sort((a,b)=>b.score-a.score).find(x=>!state.pickedGods.includes(x.key));
+      const offeredRanked=state.seenOffers.map(key=>({key,score:godPriorityScore(key,buildInfo,aspect)})).sort((a,b)=>b.score-a.score);
+      const doorsRanked=state.seenDoors.map(key=>({key,score:doorPriorityScore(key,buildInfo,weapon)})).sort((a,b)=>b.score-a.score);
+      const recommendedOffer=offeredRanked[0]?.key||null; const recommendedDoor=doorsRanked[0]?.key||null;
+      let primaryChoice=null; const bestGod=offeredRanked[0], bestDoor=doorsRanked[0]; if(bestGod||bestDoor){ if((bestDoor?.score??-999)>(bestGod?.score??-999)) primaryChoice={type:'puerta',key:bestDoor.key}; else primaryChoice={type:'dios',key:bestGod.key}; }
+      let recommendationReason='Primero marca opciones para recibir recomendación.';
+      if(primaryChoice){ if(primaryChoice.type==='puerta'){ if(primaryChoice.key==='martillo') recommendationReason='Tu build gana más poder inmediato con Martillo de Dédalo.'; else if(primaryChoice.key==='granada') recommendationReason='Como tu núcleo ya está mejor armado, subir una bendición rinde más que abrir otro frente.'; else if(primaryChoice.key==='corazon') recommendationReason='Ahora te conviene estabilizar la run con más vida.'; else if(primaryChoice.key==='mana') recommendationReason='Tu build necesita más magia para rendir mejor.'; else if(primaryChoice.key==='selene') recommendationReason='Esta run valora mucho la magia y Selene.'; else recommendationReason=`${rewards[primaryChoice.key].name} te aporta más valor ahora.`; } else { const key=primaryChoice.key; if(buildInfo.duo.includes(key)&&state.pickedGods.some(g=>buildInfo.duo.includes(g))) recommendationReason='Este dios te acerca directamente a cerrar una dupla importante.'; else if(key===buildInfo.gods[0]) recommendationReason='Este es tu dios principal ideal para la build actual.'; else if(key===buildInfo.gods[1]) recommendationReason='Este dios complementa muy bien el núcleo que ya llevas.'; else recommendationReason='De las opciones de dioses, esta es la que mejor encaja con tu plan.'; } }
+      const priorityHint=!hasMain?`Todavía te falta asegurar ${gods[buildInfo.gods[0]].name}.`:!hasSecond?`Ahora te conviene buscar ${gods[buildInfo.gods[1]].name}.`:!duoComplete?'Tu siguiente salto grande suele venir por cerrar la dupla o mejorar el arma.':'Con el núcleo listo, suelen rendir más Martillo, Granada o recursos que otro dios secundario.';
+      const pivotMessage=state.pickedGods.length>=2&&!duoComplete?'Si sigues recibiendo piezas fuera de tu núcleo, podrías cambiar de plan.':'Tu plan actual sigue viéndose bien.';
+      const checkGuidance=!state.runState.mainBoon?'Primero asegura una bendición principal.':!state.runState.secondGod?'Ahora falta el dios complementario.':!state.runState.duoPlan?'Ya puedes orientar la run hacia una dupla.':!state.runState.magickPlan?'Revisa si tu magia/omega está resuelta.':!state.runState.survivalPlan?'Te queda revisar defensa y control.':'Tu build está bastante bien resuelta.';
+      return {weapon,aspect,buildInfo,score,nextRecommendedGod,recommendedOffer,recommendedDoor,primaryChoice,offeredRanked,doorsRanked,pivotMessage,checkGuidance,recommendationReason,priorityHint};
     }
-
-    function confirmPrimaryChoice(){ const {primaryChoice}=compute(); if(!primaryChoice) return; if(primaryChoice.type==='dios') togglePickedGod(primaryChoice.key); else nextRoom(); }
-    window.toggleOffer=toggleOffer; window.toggleDoor=toggleDoor; window.togglePickedGod=togglePickedGod; window.selectWeapon=selectWeapon; window.setAspect=setAspect; window.setBuildType=setBuildType; window.setGoal=setGoal; window.toggleCheck=toggleCheck; window.confirmPrimaryChoice=confirmPrimaryChoice; window.nextRoom=nextRoom; window.clearOffers=clearOffers; window.clearDoors=clearDoors;
-
-    function renderWeapons(){ const items=weapons.filter(w=>!state.search || `${w.name} ${w.category} ${w.playstyle}`.toLowerCase().includes(state.search)); weaponList.innerHTML=items.map(w=>`<button class="weapon-card ${w.id===state.selectedWeaponId?'active':''}" onclick="selectWeapon('${w.id}')"><div class="weapon-icon">${w.icon}</div><div><div><strong>${w.name}</strong></div><div class="small">${w.category}</div></div></button>`).join(''); }
-    function renderScreens(){ Object.entries(screens).forEach(([k,el])=>el.classList.toggle('hidden',k!==state.screen)); document.querySelectorAll('.sheet button').forEach(btn=>btn.classList.toggle('active',btn.dataset.screen===state.screen)); }
-    function stat(label,v){ return `<div class="stat"><label><span>${label}</span><span>${v}/100</span></label><div class="bar"><span style="width:${v}%"></span></div></div>`; }
-
+    function confirmPrimaryChoice(){const {primaryChoice}=compute();if(!primaryChoice)return;if(primaryChoice.type==='dios')togglePickedGod(primaryChoice.key);else nextRoom();}
+    window.toggleOffer=toggleOffer; window.toggleDoor=toggleDoor; window.togglePickedGod=togglePickedGod; window.selectWeapon=selectWeapon; window.setAspect=setAspect; window.setBuildType=setBuildType; window.toggleCheck=toggleCheck; window.confirmPrimaryChoice=confirmPrimaryChoice; window.nextRoom=nextRoom; window.clearOffers=clearOffers; window.clearDoors=clearDoors;
+    function renderWeapons(){const items=weapons.filter(w=>!state.search||`${w.name} ${w.category} ${w.playstyle}`.toLowerCase().includes(state.search));weaponList.innerHTML=items.map(w=>`<button class="weapon-card ${w.id===state.selectedWeaponId?'active':''}" onclick="selectWeapon('${w.id}')"><div class="weapon-icon">${w.icon}</div><div><div><strong>${w.name}</strong></div><div class="small">${w.category}</div></div></button>`).join('');}
+    function renderScreens(){Object.entries(screens).forEach(([k,el])=>el.classList.toggle('hidden',k!==state.screen));document.querySelectorAll('.sheet button').forEach(btn=>btn.classList.toggle('active',btn.dataset.screen===state.screen));}
+    function stat(label,v){return `<div class="stat"><label><span>${label}</span><span>${v}/100</span></label><div class="bar"><span style="width:${v}%"></span></div></div>`;}
     function render(){
       syncAspect(); renderWeapons(); renderScreens();
-      const {weapon,aspect,buildInfo,score,nextRecommendedGod,recommendedOffer,recommendedDoor,primaryChoice,offeredRanked,doorsRanked,pivotMessage,checkGuidance}=compute();
-      const q=qualityInfo(score);
-      const buildTypeLabel=state.buildType==='attack'?'Ataque':state.buildType==='special'?'Especial':state.buildType==='cast'?'Cast':'Omega';
-      summaryStrip.innerHTML=`<div class="summary-top"><div class="pill">${weapon.name} · ${buildTypeLabel}</div><div class="small">${aspect.name}</div></div><div class="summary-main">${nextRecommendedGod?`Próxima prioridad: ${gods[nextRecommendedGod.key].name}`:'Sigue cerrando tu build actual'}</div><div class="chips" style="margin-top:8px;">${state.pickedGods.length?state.pickedGods.map(g=>`<span class="chip">${gods[g].name}</span>`).join(''):'<span class="chip">Sin dioses tomados</span>'}</div>`;
-
+      const {weapon,aspect,buildInfo,score,nextRecommendedGod,recommendedOffer,recommendedDoor,primaryChoice,offeredRanked,doorsRanked,pivotMessage,checkGuidance,recommendationReason,priorityHint}=compute();
+      const q=qualityInfo(score); const buildTypeLabel=state.buildType==='attack'?'Ataque':state.buildType==='special'?'Especial':state.buildType==='cast'?'Cast':'Omega';
+      summaryStrip.innerHTML=`<div class="summary-top"><div class="pill">${weapon.name} · ${buildTypeLabel}</div><div class="small">${aspect.name}</div></div><div class="summary-main">${priorityHint}</div><div class="chips" style="margin-top:8px;">${state.pickedGods.length?state.pickedGods.map(g=>`<span class="chip">${gods[g].name}</span>`).join(''):'<span class="chip">Sin dioses tomados</span>'}</div>`;
       screens.overview.innerHTML=`<div class="card"><div class="pill">${weapon.category}</div><h2 style="margin-top:10px; font-size:24px;">${weapon.name}</h2><p>${weapon.playstyle}</p><div class="hero-art"><div class="main-art">${artEmoji(weapon.id)}</div><div class="aspect-art" style="background:${aspectGradient(aspect.id)};">${artEmoji(weapon.id)}</div></div><div class="stat-grid">${stat('Velocidad',weapon.speed)}${stat('Burst',weapon.burst)}${stat('Control',weapon.control)}${stat('Comodidad',weapon.comfort)}</div></div><div class="card"><h2>Estado de la build</h2><div class="quality ${q.cls}" style="margin-top:10px;"><div class="quality-top"><span>Calidad estimada</span><span>${q.label}</span></div><div style="font-size:30px;font-weight:800;margin-top:8px;">${score}/100</div><div class="bar" style="margin-top:10px;"><span style="width:${score}%"></span></div></div></div>`;
-
-      screens.build.innerHTML=`<div class="card"><h2>Aspecto</h2><div class="aspect-scroller" style="margin-top:12px;">${weapon.aspects.map(a=>`<button class="aspect-card ${a.id===state.selectedAspectId?'active':''}" onclick="setAspect('${a.id}')"><div class="aspect-preview" style="background:${aspectGradient(a.id)};">${artEmoji(weapon.id)}</div><div><strong>${a.name}</strong></div><div class="small">${a.style}</div><div class="small">${a.focus}</div></button>`).join('')}</div></div><div class="card"><h2>Tipo de build</h2><div class="build-grid" style="margin-top:12px;">${['attack','special','cast','omega'].map(type=>{const label=type==='attack'?'Ataque':type==='special'?'Especial':type==='cast'?'Cast':'Omega'; return `<button class="build-btn ${state.buildType===type?'active':''}" onclick="setBuildType('${type}')"><strong>${label}</strong></button>`;}).join('')}</div></div><div class="card"><h2>Dioses principales del plan</h2><div class="god-scroller" style="margin-top:12px;">${buildInfo.gods.map(g=>`<button class="god-card ${state.pickedGods.includes(g)?'active':''}" onclick="togglePickedGod('${g}')"><div class="god-top"><div class="god-icon" style="background:${gods[g].color}">${gods[g].icon}</div><div><strong>${gods[g].name}</strong><div class="small">Toca para marcar que ya lo tomaste</div></div></div></button>`).join('')}</div></div>`;
-
-      screens.run.innerHTML=`<div class="recommendation-hero"><div class="small">MEJOR ELECCIÓN AHORA</div><div style="font-size:24px; font-weight:800; margin-top:6px;">${primaryChoice ? (primaryChoice.type==='dios' ? `${gods[primaryChoice.key].icon} ${gods[primaryChoice.key].name}` : `${rewards[primaryChoice.key].icon} ${rewards[primaryChoice.key].name}`) : 'Marca opciones para recibir recomendación'}</div><div class="small" style="margin-top:8px; color:#f8fafc; opacity:.9;">${primaryChoice ? (primaryChoice.type==='dios' ? 'Entre todo lo que viste, este dios pesa más para tu build.' : 'Entre todo lo que viste, esta puerta te da más valor ahora.') : 'Primero marca lo que te apareció en la estancia.'}</div><div class="action-row" style="margin-top:12px;">${primaryChoice?'<button class="btn gold" onclick="confirmPrimaryChoice()">Confirmar elección</button>':''}<button class="btn" onclick="nextRoom()">Siguiente estancia</button></div></div><div class="card"><h2>Paso 1: ¿Qué dioses te aparecieron?</h2><div class="choice-grid" style="margin-top:12px;">${allGodKeys.map(g=>`<button class="choice-card ${recommendedOffer===g?'recommended':''}" onclick="toggleOffer('${g}')"><div class="choice-top"><div class="choice-icon" style="background:${gods[g].color}">${gods[g].icon}</div><div><strong>${gods[g].name}</strong><div class="small">${state.seenOffers.includes(g)?'Marcado':'Tocar para marcar'}</div></div></div></button>`).join('')}</div><div class="action-row" style="margin-top:12px;"><button class="btn" onclick="clearOffers()">Limpiar dioses</button></div></div><div class="card"><h2>Paso 2: ¿Qué recompensas o puertas viste?</h2><div class="choice-grid" style="margin-top:12px;">${rewardKeys.map(k=>`<button class="choice-card ${recommendedDoor===k?'recommended':''}" onclick="toggleDoor('${k}')"><div class="choice-top"><div class="choice-icon">${rewards[k].icon}</div><div><strong>${rewards[k].name}</strong><div class="small">${state.seenDoors.includes(k)?'Marcada':'Tocar para marcar'}</div></div></div></button>`).join('')}</div><div class="action-row" style="margin-top:12px;"><button class="btn" onclick="clearDoors()">Limpiar puertas</button></div></div><details class="card"><summary>Ver análisis avanzado</summary><div class="details-body"><div class="callout info">${pivotMessage}</div><div class="callout.soft" style="margin-top:10px;"></div><div class="chips" style="margin-top:10px;">${state.pickedGods.length?state.pickedGods.map(g=>`<span class="chip">${gods[g].name}</span>`).join(''):'<span class="chip">Sin dioses tomados</span>'}</div>${offeredRanked.length?`<div class="small" style="margin-top:12px;">Orden de dioses: ${offeredRanked.map(x=>gods[x.key].name).join(' → ')}</div>`:''}${doorsRanked.length?`<div class="small" style="margin-top:8px;">Orden de puertas: ${doorsRanked.map(x=>rewards[x.key].name).join(' → ')}</div>`:''}</div></details>`;
-
+      screens.build.innerHTML=`<div class="card"><h2>Aspecto</h2><div class="aspect-scroller" style="margin-top:12px;">${weapon.aspects.map(a=>`<button class="aspect-card ${a.id===state.selectedAspectId?'active':''}" onclick="setAspect('${a.id}')"><div class="aspect-preview" style="background:${aspectGradient(a.id)};">${artEmoji(weapon.id)}</div><div><strong>${a.name}</strong></div><div class="small">${a.style}</div><div class="small">${a.focus}</div></button>`).join('')}</div></div><div class="card"><h2>Tipo de build</h2><div class="build-grid" style="margin-top:12px;">${['attack','special','cast','omega'].map(type=>{const label=type==='attack'?'Ataque':type==='special'?'Especial':type==='cast'?'Cast':'Omega';return `<button class="build-btn ${state.buildType===type?'active':''}" onclick="setBuildType('${type}')"><strong>${label}</strong></button>`;}).join('')}</div></div><div class="card"><h2>Dioses principales del plan</h2><div class="god-scroller" style="margin-top:12px;">${buildInfo.gods.map(g=>`<button class="god-card ${state.pickedGods.includes(g)?'active':''}" onclick="togglePickedGod('${g}')"><div class="god-top"><div class="god-icon" style="background:${gods[g].color}">${gods[g].icon}</div><div><strong>${gods[g].name}</strong><div class="small">Toca para marcar que ya lo tomaste</div></div></div></button>`).join('')}</div></div>`;
+      screens.run.innerHTML=`<div class="recommendation-hero"><div class="small">MEJOR ELECCIÓN AHORA</div><div style="font-size:24px; font-weight:800; margin-top:6px;">${primaryChoice?(primaryChoice.type==='dios'?`${gods[primaryChoice.key].icon} ${gods[primaryChoice.key].name}`:`${rewards[primaryChoice.key].icon} ${rewards[primaryChoice.key].name}`):'Marca opciones para recibir recomendación'}</div><div class="small" style="margin-top:8px; color:#f8fafc; opacity:.9;">${recommendationReason}</div><div class="action-row" style="margin-top:12px;">${primaryChoice?'<button class="btn gold" onclick="confirmPrimaryChoice()">Confirmar elección</button>':''}<button class="btn" onclick="nextRoom()">Siguiente estancia</button></div></div><div class="card"><h2>Paso 1: ¿Qué dioses te aparecieron?</h2><div class="choice-grid" style="margin-top:12px;">${allGodKeys.map(g=>`<button class="choice-card ${recommendedOffer===g?'recommended':''}" onclick="toggleOffer('${g}')"><div class="choice-top"><div class="choice-icon" style="background:${gods[g].color}">${gods[g].icon}</div><div><strong>${gods[g].name}</strong><div class="small">${state.seenOffers.includes(g)?'Marcado':'Tocar para marcar'}</div></div></div></button>`).join('')}</div><div class="action-row" style="margin-top:12px;"><button class="btn" onclick="clearOffers()">Limpiar dioses</button></div></div><div class="card"><h2>Paso 2: ¿Qué recompensas o puertas viste?</h2><div class="choice-grid" style="margin-top:12px;">${rewardKeys.map(k=>`<button class="choice-card ${recommendedDoor===k?'recommended':''}" onclick="toggleDoor('${k}')"><div class="choice-top"><div class="choice-icon">${rewards[k].icon}</div><div><strong>${rewards[k].name}</strong><div class="small">${state.seenDoors.includes(k)?'Marcada':'Tocar para marcar'}</div></div></div></button>`).join('')}</div><div class="action-row" style="margin-top:12px;"><button class="btn" onclick="clearDoors()">Limpiar puertas</button></div></div><details class="card"><summary>Ver análisis avanzado</summary><div class="details-body"><div class="callout info">${pivotMessage}</div><div class="callout soft" style="margin-top:10px;">${priorityHint}</div>${offeredRanked.length?`<div class="small" style="margin-top:12px;">Orden de dioses: ${offeredRanked.map(x=>gods[x.key].name).join(' → ')}</div>`:''}${doorsRanked.length?`<div class="small" style="margin-top:8px;">Orden de puertas: ${doorsRanked.map(x=>rewards[x.key].name).join(' → ')}</div>`:''}</div></details>`;
       screens.guide.innerHTML=`<div class="card"><h2>Cómo usar la run</h2><div class="callout info">1. Marca los dioses que te salieron. 2. Marca las puertas o recompensas que viste. 3. Mira la tarjeta grande de recomendación. 4. Si elegiste esa opción, toca <strong>Confirmar elección</strong>. 5. Usa <strong>Siguiente estancia</strong> para limpiar lo temporal.</div></div><details class="card"><summary>Ver checklist</summary><div class="details-body"><div class="check-grid" style="margin-top:12px;">${[['mainBoon','Ya encontré mi bendición principal'],['secondGod','Ya tengo mi segundo dios complementario'],['duoPlan','Ya sé qué dupla quiero perseguir'],['magickPlan','Mi magia / omega está resuelta'],['survivalPlan','Tengo control o supervivencia suficiente']].map(([k,l])=>`<label class="check-item"><input type="checkbox" ${state.runState[k]?'checked':''} onchange="toggleCheck('${k}')" /><span>${l}</span></label>`).join('')}</div><div class="callout soft" style="margin-top:12px;">${checkGuidance}</div></div></details><div class="card"><h2>Recompensas en español</h2><div class="note-grid" style="margin-top:12px;">${rewardKeys.map(k=>`<div class="line-card"><strong>${rewards[k].icon} ${rewards[k].name}</strong><div class="small" style="margin-top:6px;">${rewards[k].desc}</div></div>`).join('')}</div></div>`;
     }
-
-    if('serviceWorker' in navigator){ const swCode=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());`; const blob=new Blob([swCode],{type:'text/javascript'}); const swUrl=URL.createObjectURL(blob); navigator.serviceWorker.register(swUrl).catch(()=>{}); }
-    render();
+    if('serviceWorker' in navigator){const swCode=`self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());`;const blob=new Blob([swCode],{type:'text/javascript'});const swUrl=URL.createObjectURL(blob);navigator.serviceWorker.register(swUrl).catch(()=>{});} render();
   </script>
 </body>
 </html>
-
-
